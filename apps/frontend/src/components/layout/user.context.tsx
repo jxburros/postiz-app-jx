@@ -19,6 +19,7 @@ export const UserContext = createContext<
       allowTrial: boolean;
       isTrailing: boolean;
       streakSince: string | null;
+      aiConfigured: boolean;
     })
 >(undefined);
 export const ContextWrapper: FC<{

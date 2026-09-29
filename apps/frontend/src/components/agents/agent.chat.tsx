@@ -39,12 +39,33 @@ import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
 import { ExistingDataContextProvider } from '@gitroom/frontend/components/launches/helpers/use.existing.data';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { hasExtension } from '@gitroom/helpers/utils/has.extension';
+import { useUser } from '@gitroom/frontend/components/layout/user.context';
 
 export const AgentChat: FC = () => {
   const { backendUrl } = useVariables();
   const params = useParams<{ id: string }>();
   const { properties } = useContext(PropertiesContext);
+  const user = useUser();
   const t = useT();
+
+  // the agent runs on OpenAI, without a key the chat would never answer
+  if (user?.aiConfigured === false) {
+    return (
+      <div className="bg-newBgColorInner flex flex-1 justify-center items-center p-[20px]">
+        <div className="flex flex-col gap-[12px] text-center max-w-[480px]">
+          <div className="font-[600] text-[20px]">
+            {t('agent_not_configured', 'The AI agent is not set up yet')}
+          </div>
+          <div className="text-[14px]">
+            {t(
+              'agent_not_configured_description',
+              'Add OPENAI_API_KEY to the Postiz environment and restart it to chat with the agent. You can still connect your own AI agent to Postiz under Settings > Developers.'
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <CopilotKit

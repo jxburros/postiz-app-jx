@@ -52,6 +52,9 @@ export class CopilotController {
       process.env.OPENAI_API_KEY === ''
     ) {
       Logger.warn('OpenAI API key not set, chat functionality will not work');
+      // no answer on purpose: the app-wide CopilotKit calls this on every page,
+      // an error would be logged each time. The UI hides the assistant instead
+      // (user.aiConfigured)
       return;
     }
 
@@ -79,6 +82,10 @@ export class CopilotController {
       process.env.OPENAI_API_KEY === ''
     ) {
       Logger.warn('OpenAI API key not set, chat functionality will not work');
+      // answer instead of leaving the request hanging, the UI waits on it
+      res.status(503).json({
+        message: 'The AI assistant needs OPENAI_API_KEY to be set on the server',
+      });
       return;
     }
     const mastra = await this._mastraService.mastra();

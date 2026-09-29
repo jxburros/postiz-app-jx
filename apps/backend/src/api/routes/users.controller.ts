@@ -130,6 +130,8 @@ export class UsersController {
         : organization?.isTrailing,
       allowTrial: organization?.allowTrial,
       streakSince: organization?.streakSince || null,
+      // the AI agent and assistants run on OpenAI, without a key they can't answer
+      aiConfigured: !!process.env.OPENAI_API_KEY,
       publicApi:
         // @ts-ignore
         organization?.users[0]?.role === 'SUPERADMIN' ||

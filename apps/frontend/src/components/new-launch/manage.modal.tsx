@@ -42,9 +42,11 @@ import {
 import { useHasScroll } from '@gitroom/frontend/components/ui/is.scroll.hook';
 import { useShortlinkPreference } from '@gitroom/frontend/components/settings/shortlink-preference.component';
 import dayjs from 'dayjs';
+import { useUser } from '@gitroom/frontend/components/layout/user.context';
 import { Button } from '@gitroom/react/form/button';
 
 export const ManageModal: FC<AddEditModalProps> = (props) => {
+  const user = useUser();
   const t = useT();
   const fetch = useFetch();
   const ref = useRef(null);
@@ -707,10 +709,12 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
           </div>
         </div>
       </div>
-      <CopilotPopup
-        hitEscapeToClose={false}
-        clickOutsideToClose={true}
-        instructions={`
+      {/* the assistant can't answer without an OpenAI key on the server */}
+      {user?.aiConfigured !== false && (
+        <CopilotPopup
+          hitEscapeToClose={false}
+          clickOutsideToClose={true}
+          instructions={`
 You are an assistant that help the user to schedule their social media posts,
 Here are the things you can do:
 - Add a new comment / post to the list of posts
@@ -721,14 +725,15 @@ Here are the things you can do:
 Post content can be added using the addPostContentFor{num} function.
 After using the addPostFor{num} it will create a new addPostContentFor{num+ 1} function.
 `}
-        labels={{
-          title: t('your_assistant', 'Your Assistant'),
-          initial: t(
-            'assistant_initial_message',
-            'Hi! I can help you to refine your social media posts.'
-          ),
-        }}
-      />
+          labels={{
+            title: t('your_assistant', 'Your Assistant'),
+            initial: t(
+              'assistant_initial_message',
+              'Hi! I can help you to refine your social media posts.'
+            ),
+          }}
+        />
+      )}
     </div>
   );
 };
