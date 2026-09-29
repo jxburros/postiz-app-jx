@@ -187,7 +187,7 @@ export const Component: FC<{
               !modal.fullScreen
                 ? modal.top
                   ? ''
-                  : 'min-h-full pt-[100px] pb-[100px]'
+                  : 'min-h-full pt-[100px] pb-[100px] phone:pt-[16px] phone:pb-[16px]'
                 : 'h-screen',
               modal.size && modal.height
                 ? 'flex justify-center items-center'
@@ -196,8 +196,10 @@ export const Component: FC<{
           >
             <div
               className={clsx(
-                !modal.removeLayout && 'gap-[40px] p-[32px]',
-                'bg-newBgColorInner mx-auto flex flex-col w-fit rounded-[24px] relative',
+                !modal.removeLayout &&
+                  'gap-[40px] p-[32px] phone:gap-[20px] phone:p-[16px]',
+                // phones: full width, overriding min-w and an inline size
+                'bg-newBgColorInner mx-auto flex flex-col w-fit rounded-[24px] relative phone:!w-full phone:!min-w-0',
                 modal.size ? '' : 'min-w-[600px]',
                 modal.fullScreen && 'h-full'
               )}

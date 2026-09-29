@@ -145,7 +145,15 @@ export const CalendarWeekProvider: FC<{
   const [internalData, setInternalData] = useState([] as any[]);
   const [trendings] = useState<string[]>([]);
   const searchParams = useSearchParams();
-  const [displaySaved, setDisplaySaved] = useCookie('calendar-display', 'week');
+  // phones can't fit the 7 columns of the week view, a saved choice still wins
+  // (767px is the `phone` screen in tailwind.config.cjs)
+  const [displaySaved, setDisplaySaved] = useCookie(
+    'calendar-display',
+    typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 767px)').matches
+      ? 'day'
+      : 'week'
+  );
   const display = searchParams.get('display') || displaySaved;
 
   // List view state

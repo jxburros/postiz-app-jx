@@ -98,7 +98,7 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
             <ContinueProvider />
             <div
               className={clsx(
-                'flex flex-col min-h-screen min-w-screen text-newTextColor p-[12px]',
+                'flex flex-col min-h-screen min-w-screen text-newTextColor p-[12px] phone:p-[8px] phone:pb-[84px]',
                 jakartaSans.className
               )}
             >
@@ -110,7 +110,7 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
                   <AnnouncementBanner />
                   <div className="flex-1 flex gap-[8px]">
                     <Support />
-                    <div className="flex flex-col bg-newBgColorInner w-[80px] rounded-[12px]">
+                    <div className="flex flex-col bg-newBgColorInner w-[80px] rounded-[12px] phone:hidden">
                       <div
                         id="left-menu"
                         className={clsx(
@@ -124,14 +124,20 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
                         </div>
                       </div>
                     </div>
+                    {/* phones get the menu as a bottom bar instead of the left rail */}
+                    <div className="hidden phone:flex fixed bottom-0 start-0 w-full z-[100] bg-newBgColorInner border-t border-newBorder px-[8px] py-[6px] overflow-x-auto">
+                      <TopMenu horizontal={true} />
+                    </div>
                     <div className="flex-1 bg-newBgLineColor rounded-[12px] overflow-hidden flex flex-col gap-[1px] blurMe">
-                      <div className="flex bg-newBgColorInner h-[80px] px-[20px] items-center">
-                        <div className="text-[24px] font-[600] flex flex-1">
+                      <div className="flex bg-newBgColorInner h-[80px] phone:h-[60px] px-[20px] phone:px-[12px] items-center">
+                        <div className="text-[24px] phone:text-[18px] font-[600] flex flex-1">
                           <Title />
                         </div>
-                        <div className="flex gap-[20px] text-textItemBlur">
-                          <StreakComponent />
-                          <div className="w-[1px] h-[20px] bg-blockSeparator" />
+                        <div className="flex gap-[20px] phone:gap-[12px] text-textItemBlur">
+                          <div className="flex gap-[20px] phone:hidden">
+                            <StreakComponent />
+                            <div className="w-[1px] h-[20px] bg-blockSeparator" />
+                          </div>
                           <OrganizationSelector />
                           <div className="hover:text-newTextColor">
                             <ModeComponent />
@@ -139,12 +145,16 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
                           <div className="w-[1px] h-[20px] bg-blockSeparator" />
                           <LanguageComponent />
                           <ChromeExtensionComponent />
-                          <div className="w-[1px] h-[20px] bg-blockSeparator" />
-                          <AttachToFeedbackIcon />
+                          <div className="flex gap-[20px] phone:hidden">
+                            <div className="w-[1px] h-[20px] bg-blockSeparator" />
+                            <AttachToFeedbackIcon />
+                          </div>
                           <NotificationComponent />
                         </div>
                       </div>
-                      <div className="flex flex-1 gap-[1px]">{children}</div>
+                      <div className="flex flex-1 gap-[1px] phone:flex-col">
+                        {children}
+                      </div>
                     </div>
                   </div>
                 </>

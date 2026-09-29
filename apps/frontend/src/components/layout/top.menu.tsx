@@ -7,6 +7,7 @@ import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { MenuItem } from '@gitroom/frontend/components/new-layout/menu-item';
 import { useModals } from '@gitroom/frontend/components/layout/new-modal';
 import { AgentMediaModal } from '@gitroom/frontend/components/layout/agent.media.modal';
+import clsx from 'clsx';
 
 interface MenuItemInterface {
   name: string;
@@ -311,13 +312,19 @@ export const useMenuItem = () => {
   };
 };
 
-export const TopMenu: FC = () => {
+// horizontal: the bottom bar that replaces the left rail on phones
+export const TopMenu: FC<{ horizontal?: boolean }> = ({ horizontal }) => {
   const user = useUser();
   const { firstMenu, secondMenu } = useMenuItem();
   const { isGeneral, billingEnabled } = useVariables();
   return (
     <>
-      <div className="flex flex-1 flex-col minCustom:gap-[16px] blurMe">
+      <div
+        className={clsx(
+          'flex blurMe',
+          horizontal ? 'gap-[4px]' : 'flex-1 flex-col minCustom:gap-[16px]'
+        )}
+      >
         {
           // @ts-ignore
           user?.orgId &&
@@ -346,11 +353,19 @@ export const TopMenu: FC = () => {
                   icon={item.icon}
                   key={item.name}
                   onClick={item.onClick}
+                  horizontal={horizontal}
                 />
               ))
         }
       </div>
-      <div className="flex flex-col minCustom:gap-[20px] custom:gap-[8px] blurMe">
+      <div
+        className={clsx(
+          'flex blurMe',
+          horizontal
+            ? 'gap-[4px]'
+            : 'flex-col minCustom:gap-[20px] custom:gap-[8px]'
+        )}
+      >
         {secondMenu
           .filter((f) => {
             if (f.hide) {
@@ -374,6 +389,7 @@ export const TopMenu: FC = () => {
               icon={item.icon}
               key={item.name}
               onClick={item.onClick}
+              horizontal={horizontal}
             />
           ))}
       </div>

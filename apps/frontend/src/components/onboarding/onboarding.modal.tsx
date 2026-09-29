@@ -627,7 +627,7 @@ const OnboardingStep2: FC<{ onBack: () => void; onNext: () => void }> = ({
           ) : (
             <>
               {connectorSection}
-              <div className="grid grid-cols-2 gap-[16px]">
+              <div className="grid grid-cols-2 phone:grid-cols-1 gap-[16px]">
                 {mcpSection}
                 {cliSection}
               </div>
