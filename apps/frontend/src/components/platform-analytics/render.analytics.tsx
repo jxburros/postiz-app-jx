@@ -5,6 +5,7 @@ import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { ChartSocial } from '@gitroom/frontend/components/analytics/chart-social';
 import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
+import { useConnectError } from '@gitroom/frontend/components/launches/add.provider.component';
 
 interface AnalyticsDataItem {
   label: string;
@@ -174,6 +175,7 @@ export const RenderAnalytics: FC<{
   const { integration, date } = props;
   const [loading, setLoading] = useState(true);
   const fetch = useFetch();
+  const connectError = useConnectError();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -201,7 +203,7 @@ export const RenderAnalytics: FC<{
         }
       ) =>
       async () => {
-        const { url } = await (
+        const { url, err, missingEnv } = await (
           await fetch(
             `/integrations/social/${integrationData.identifier}?refresh=${integrationData.internalId}`,
             {
@@ -209,6 +211,10 @@ export const RenderAnalytics: FC<{
             }
           )
         ).json();
+        if (err) {
+          connectError(missingEnv);
+          return;
+        }
         window.location.href = url;
       },
     []

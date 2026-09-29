@@ -3,6 +3,7 @@
 import {
   AddProviderButton,
   CustomVariables,
+  useConnectError,
 } from '@gitroom/frontend/components/launches/add.provider.component';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import SafeImage from '@gitroom/react/helpers/safe.image';
@@ -360,6 +361,7 @@ export const LaunchesComponent = () => {
   const router = useRouter();
   const search = useSearchParams();
   const toast = useToaster();
+  const connectError = useConnectError();
   const fireEvents = useFireEvents();
   const t = useT();
   const modal = useModals();
@@ -471,7 +473,7 @@ export const LaunchesComponent = () => {
           return;
         }
 
-        const { url } = await (
+        const { url, err, missingEnv } = await (
           await fetch(
             `/integrations/social/${integration.identifier}?refresh=${integration.internalId}`,
             {
@@ -479,6 +481,10 @@ export const LaunchesComponent = () => {
             }
           )
         ).json();
+        if (err) {
+          connectError(missingEnv);
+          return;
+        }
         window.location.href = url;
       },
     []
@@ -488,7 +494,11 @@ export const LaunchesComponent = () => {
       return;
     }
     if (search.get('msg')) {
-      toast.show(search.get('msg')!, 'success');
+      // a connected channel also carries ?added=, a failed connect only the message
+      toast.show(
+        search.get('msg')!,
+        search.get('added') ? 'success' : 'warning'
+      );
       window?.opener?.postMessage(
         {
           msg: search.get('msg')!,

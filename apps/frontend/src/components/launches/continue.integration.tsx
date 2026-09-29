@@ -41,7 +41,12 @@ export const ContinueIntegration: FC<{
 
   // Helper to handle navigation - redirects if logged or returnURL exists, otherwise shows inline
   const navigateOrShow = useCallback(
-    (path: string, returnURL: string | undefined, successMessage: string) => {
+    (
+      path: string,
+      returnURL: string | undefined,
+      message: string,
+      isError = false
+    ) => {
       if (returnURL) {
         // If returnURL exists, always redirect to it with the path params
         const params = path.includes('?') ? path.split('?')[1] : '';
@@ -49,9 +54,13 @@ export const ContinueIntegration: FC<{
       } else if (logged) {
         // If logged in without returnURL, use normal navigation
         push(path);
+      } else if (isError) {
+        // If not logged in without returnURL, show the error inline
+        setErrorMessage(message);
+        setError(true);
       } else {
         // If not logged in without returnURL, show success inline
-        setSuccessState({ message: successMessage });
+        setSuccessState({ message });
       }
     },
     [logged, push]
@@ -133,14 +142,20 @@ export const ContinueIntegration: FC<{
         navigateOrShow(
           `/launches?precondition=true`,
           returnURL,
-          'Precondition failed'
+          'Precondition failed',
+          true
         );
         return;
       }
 
       if (data.status === HttpStatusCode.NotAcceptable) {
         const { msg, returnURL } = await data.json();
-        navigateOrShow(`/launches?msg=${msg}`, returnURL, msg);
+        navigateOrShow(
+          `/launches?msg=${encodeURIComponent(msg)}`,
+          returnURL,
+          msg,
+          true
+        );
         return;
       }
 
@@ -160,6 +175,7 @@ export const ContinueIntegration: FC<{
         inBetweenSteps,
         id,
         onboarding: resOnboarding,
+        reconnected,
         pages,
         returnURL,
         extensionToken,
@@ -205,12 +221,13 @@ export const ContinueIntegration: FC<{
         return;
       }
 
+      const message = reconnected ? 'Channel Updated' : 'Channel Added';
       navigateOrShow(
-        `/launches?added=${provider}&msg=Channel Updated${
+        `/launches?added=${provider}&msg=${message}${
           onboarding ? '&onboarding=true' : ''
         }`,
         returnURL,
-        'Channel Updated'
+        message
       );
     })();
   }, []);

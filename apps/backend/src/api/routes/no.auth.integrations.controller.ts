@@ -331,6 +331,8 @@ export class NoAuthIntegrationsController {
     return {
       ...safeIntegration,
       onboarding: onboarding === 'true',
+      // an existing channel was reconnected rather than a new one added
+      reconnected: !!refresh,
       pages,
       ...(returnURL ? { returnURL } : {}),
       ...(extensionToken ? { extensionToken } : {}),
