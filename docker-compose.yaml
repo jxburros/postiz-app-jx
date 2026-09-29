@@ -19,7 +19,6 @@ services:
       # === Storage Settings
       STORAGE_PROVIDER: 'local'
       UPLOAD_DIRECTORY: '/uploads'
-      NEXT_PUBLIC_UPLOAD_DIRECTORY: '/uploads'
 
       # === Cloudflare (R2) Settings
       # STORAGE_PROVIDER: 'cloudflare'
@@ -75,7 +74,7 @@ services:
       # === OAuth & Authentik Settings
       # NEXT_PUBLIC_POSTIZ_OAUTH_DISPLAY_NAME: 'Authentik'
       # NEXT_PUBLIC_POSTIZ_OAUTH_LOGO_URL: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/master/png/authentik.png'
-      # POSTIZ_GENERIC_OAUTH: 'false'
+      # POSTIZ_GENERIC_OAUTH: 'true' # any value turns the login button on, even 'false'
       # POSTIZ_OAUTH_URL: 'https://auth.example.com'
       # POSTIZ_OAUTH_AUTH_URL: 'https://auth.example.com/application/o/authorize'
       # POSTIZ_OAUTH_TOKEN_URL: 'https://auth.example.com/application/o/token'
