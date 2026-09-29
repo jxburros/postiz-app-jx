@@ -3,6 +3,7 @@
 import { Select } from '@gitroom/react/form/select';
 import React, { useState } from 'react';
 import { isUSCitizen } from '@gitroom/frontend/components/launches/helpers/isuscitizen.utils';
+import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import timezones from 'timezones-list';
 const dateMetrics = [
   { label: 'AM:PM', value: 'US' },
@@ -14,6 +15,7 @@ import timezone from 'dayjs/plugin/timezone';
 dayjs.extend(timezone);
 
 const MetricComponent = () => {
+  const t = useT();
   const [currentMetric, setCurrentMetric] = useState(isUSCitizen());
   const [timezone, setTimezone] = useState(
     localStorage.getItem('timezone') || dayjs.tz.guess()
@@ -33,7 +35,7 @@ const MetricComponent = () => {
   };
   return (
     <div className="my-[16px] mt-[16px] bg-sixth border-fifth border rounded-[4px] p-[24px] flex flex-col gap-[24px]">
-      <div className="mt-[4px]">Date Metrics</div>
+      <div className="mt-[4px]">{t('time_format', 'Time format')}</div>
       <Select name="metric" disableForm={true} label="" onChange={changeMetric} value={currentMetric ? 'US' : 'GLOBAL'}>
         {dateMetrics.map((metric) => (
           <option
@@ -44,6 +46,19 @@ const MetricComponent = () => {
           </option>
         ))}
       </Select>
+
+      <div className="flex flex-col gap-[4px]">
+        <div>{t('timezone', 'Timezone')}</div>
+        <div className="text-[14px]">
+          {dayjs.tz.guess()} (UTC{dayjs().format('Z')})
+        </div>
+        <div className="text-[12px] text-textItemBlur">
+          {t(
+            'timezone_follows_browser',
+            'The calendar and the scheduling times follow the timezone of this device. To use another one, change the timezone of your computer or phone.'
+          )}
+        </div>
+      </div>
 
       {/*<div className="mt-[4px]">Current Timezone</div>*/}
       {/*<Select*/}

@@ -37,17 +37,16 @@ import {
   ChevronDownIcon,
   CloseIcon,
   TrashIcon,
-  DropdownArrowSmallIcon,
 } from '@gitroom/frontend/components/ui/icons';
 import { useHasScroll } from '@gitroom/frontend/components/ui/is.scroll.hook';
 import { useShortlinkPreference } from '@gitroom/frontend/components/settings/shortlink-preference.component';
 import dayjs from 'dayjs';
-import { useUser } from '@gitroom/frontend/components/layout/user.context';
 import { Button } from '@gitroom/react/form/button';
+import { useUser } from '@gitroom/frontend/components/layout/user.context';
 
 export const ManageModal: FC<AddEditModalProps> = (props) => {
-  const user = useUser();
   const t = useT();
+  const user = useUser();
   const fetch = useFetch();
   const ref = useRef(null);
   const existingData = useExistingData();
@@ -645,7 +644,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             )}
             {addEditSets && (
               <button
-                className="text-white text-[15px] font-[600] min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
+                className="text-white text-[15px] font-[600] min-w-[180px] disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
                 disabled={
                   selectedIntegrations.length === 0 || loading || locked
                 }
@@ -654,57 +653,47 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                 Save Set
               </button>
             )}
+            {!addEditSets && !dummy && (
+              <button
+                onClick={schedule('now')}
+                disabled={
+                  selectedIntegrations.length === 0 || loading || locked
+                }
+                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-80 px-[20px] h-[44px] text-white bg-[#D82D7E] justify-center items-center flex rounded-[8px] text-[15px] font-[600]"
+              >
+                {t('post_now', 'Post Now')}
+              </button>
+            )}
             {!addEditSets && (
-              <div className="group cursor-pointer relative">
-                <button
-                  disabled={
-                    selectedIntegrations.length === 0 || loading || locked
-                  }
-                  onClick={schedule('schedule')}
-                  className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
-                >
-                  {loading && (
-                    <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-                      <div className="animate-spin h-[20px] w-[20px] border-4 border-white border-t-transparent rounded-full" />
-                    </div>
-                  )}
-                  <div
-                    className={clsx(
-                      'text-[15px] font-[600]',
-                      loading && 'invisible'
-                    )}
-                  >
-                    {selectedIntegrations.length === 0
-                      ? t('check_circles_above', 'Check the circles above')
-                      : dummy
-                      ? t('create_output', 'Create output')
-                      : !existingData?.integration
-                      ? t('add_to_calendar', 'Add to calendar')
-                      : existingData?.posts?.[0]?.state === 'DRAFT'
-                      ? t('schedule', 'Schedule')
-                      : t('update', 'Update')}
+              <button
+                disabled={
+                  selectedIntegrations.length === 0 || loading || locked
+                }
+                onClick={schedule('schedule')}
+                className="text-white relative min-w-[180px] disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] px-[20px]"
+              >
+                {loading && (
+                  <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
+                    <div className="animate-spin h-[20px] w-[20px] border-4 border-white border-t-transparent rounded-full" />
                   </div>
-                  {!dummy && (
-                    <div className="flex justify-center items-center h-[20px] w-[20px] pt-[4px] arrow-change">
-                      <DropdownArrowSmallIcon className="group-hover:rotate-180 text-white" />
-                    </div>
-                  )}
-                </button>
-
-                {!dummy && (
-                  <button
-                    onClick={schedule('now')}
-                    disabled={
-                      selectedIntegrations.length === 0 || loading || locked
-                    }
-                    className="rounded-[8px] z-[300] disabled:cursor-not-allowed disabled:opacity-80 hidden group-hover:flex absolute bottom-[100%] -left-[12px] p-[12px] w-[206px] bg-newBgColorInner"
-                  >
-                    <div className="text-white rounded-[8px] bg-[#D82D7E] h-[44px] w-full flex justify-center items-center post-now">
-                      {t('post_now', 'Post Now')}
-                    </div>
-                  </button>
                 )}
-              </div>
+                <div
+                  className={clsx(
+                    'text-[15px] font-[600]',
+                    loading && 'invisible'
+                  )}
+                >
+                  {selectedIntegrations.length === 0
+                    ? t('select_a_channel_above', 'Select a channel above')
+                    : dummy
+                    ? t('create_output', 'Create output')
+                    : !existingData?.integration
+                    ? t('add_to_calendar', 'Add to calendar')
+                    : existingData?.posts?.[0]?.state === 'DRAFT'
+                    ? t('schedule', 'Schedule')
+                    : t('update', 'Update')}
+                </div>
+              </button>
             )}
           </div>
         </div>

@@ -778,21 +778,8 @@ html[dir='rtl'] [dir='ltr'] {
   box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.5);
 }
 
-.post-now {
-  box-shadow: -33px 57px 18px 0 rgba(0, 0, 0, 0.01),
-    -21px 36px 17px 0 rgba(0, 0, 0, 0.06), -12px 20px 14px 0 rgba(0, 0, 0, 0.2),
-    -5px 9px 11px 0 rgba(0, 0, 0, 0.34), -1px 2px 6px 0 rgba(0, 0, 0, 0.39);
-}
-
 .uppyChange .uppy-Dashboard-inner {
   width: 100% !important;
-}
-
-.btnSub:disabled .arrow-change {
-  display: none !important;
-}
-.btnSub:disabled + button {
-  display: none !important;
 }
 
 .tiptap p.is-editor-empty:first-child::before {
