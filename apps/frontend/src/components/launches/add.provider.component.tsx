@@ -21,6 +21,27 @@ import copy from 'copy-to-clipboard';
 import { capitalize } from 'lodash';
 const resolver = classValidatorResolver(ApiKeyDto);
 
+// Explains a failed `/integrations/social/:provider` call, naming the env vars
+// the server is missing when the provider is not configured
+export const useConnectError = () => {
+  const toaster = useToaster();
+  const t = useT();
+  return useCallback((missingEnv?: string[]) => {
+    toaster.show(
+      missingEnv?.length
+        ? `${t(
+            'provider_not_configured',
+            'This channel is not set up on this server yet. Add these environment variables and restart Postiz:'
+          )} ${missingEnv.join(', ')}`
+        : t(
+            'could_not_connect_to_platform',
+            'Could not connect to the platform'
+          ),
+      'warning'
+    );
+  }, []);
+};
+
 export const useAddProvider = (update?: () => void, invite?: boolean) => {
   const modal = useModals();
   const fetch = useFetch();
@@ -386,6 +407,7 @@ export const AddProviderComponent: FC<{
     isExternal: boolean;
     isWeb3: boolean;
     isChromeExtension?: boolean;
+    isConfigured?: boolean;
     extensionCookies?: Array<{
       name: string;
       domain: string;
@@ -413,6 +435,7 @@ export const AddProviderComponent: FC<{
   const router = useRouter();
   const fetch = useFetch();
   const modal = useModals();
+  const connectError = useConnectError();
   const getSocialLink = useCallback(
     (
         invite: boolean,
@@ -488,15 +511,9 @@ export const AddProviderComponent: FC<{
           if (response.status === 402) {
             return;
           }
-          const { url, err } = await response.json();
+          const { url, err, missingEnv } = await response.json();
           if (err) {
-            toaster.show(
-              t(
-                'could_not_connect_to_platform',
-                'Could not connect to the platform'
-              ),
-              'warning'
-            );
+            connectError(missingEnv);
             return;
           }
 
@@ -679,6 +696,20 @@ export const AddProviderComponent: FC<{
     [onboarding]
   );
 
+  // the public provider list only flags a provider as not configured, the
+  // authenticated connect endpoint names the missing env vars
+  const explainNotConfigured = useCallback(
+    (identifier: string) => async () => {
+      const response = await fetch(`/integrations/social/${identifier}`);
+      if (response.status === 402) {
+        return;
+      }
+      const { missingEnv } = await response.json();
+      connectError(missingEnv);
+    },
+    []
+  );
+
   const t = useT();
 
   return (
@@ -702,21 +733,40 @@ export const AddProviderComponent: FC<{
                 !item.isExternal &&
                 !item.isWeb3 &&
                 !item.isChromeExtension &&
-                !item.customFields
+                !item.customFields &&
+                item.isConfigured !== false
               );
             })
+            // providers that are not configured on this server go last
+            .sort(
+              (a, b) =>
+                Number(a.isConfigured === false) -
+                Number(b.isConfigured === false)
+            )
             .map((item) => (
               <div
                 key={item.identifier}
-                onClick={getSocialLink(
-                  props.invite,
-                  item.identifier,
-                  item.isExternal,
-                  item.isWeb3,
-                  item.isChromeExtension,
-                  item.customFields
-                )}
-                {...(!!item.toolTip
+                onClick={
+                  item.isConfigured === false
+                    ? explainNotConfigured(item.identifier)
+                    : getSocialLink(
+                        props.invite,
+                        item.identifier,
+                        item.isExternal,
+                        item.isWeb3,
+                        item.isChromeExtension,
+                        item.customFields
+                      )
+                }
+                {...(item.isConfigured === false
+                  ? {
+                      'data-tooltip-id': 'tooltip',
+                      'data-tooltip-content': t(
+                        'provider_not_configured_tooltip',
+                        'Not set up on this server yet, click to see what is missing'
+                      ),
+                    }
+                  : !!item.toolTip
                   ? {
                       'data-tooltip-id': 'tooltip',
                       'data-tooltip-content': item.toolTip,
@@ -726,7 +776,8 @@ export const AddProviderComponent: FC<{
                   isMobile
                     ? 'flex-row h-[72px] p-[16px]'
                     : 'flex-col p-[10px] h-[100px] justify-center',
-                  'w-full text-[14px] rounded-[8px] bg-newTableHeader text-textColor relative items-center flex gap-[10px] cursor-pointer'
+                  'w-full text-[14px] rounded-[8px] bg-newTableHeader text-textColor relative items-center flex gap-[10px] cursor-pointer',
+                  item.isConfigured === false && 'opacity-40'
                 )}
               >
                 <div>

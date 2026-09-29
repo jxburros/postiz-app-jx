@@ -31,6 +31,7 @@ export class ThreadsProvider extends SocialAbstract implements SocialProvider {
     // 'threads_profile_discovery',
   ];
   override maxConcurrentJob = 2; // Threads has moderate rate limits
+  override requiredEnv = ['THREADS_APP_ID', 'THREADS_APP_SECRET'];
   refreshCron = true;
 
   editor = 'normal' as const;

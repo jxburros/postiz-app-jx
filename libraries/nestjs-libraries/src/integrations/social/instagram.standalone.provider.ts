@@ -36,6 +36,7 @@ export class InstagramStandaloneProvider
     'instagram_business_manage_insights',
   ];
     override maxConcurrentJob = 200; // Instagram standalone has stricter limits
+  override requiredEnv = ['INSTAGRAM_APP_ID', 'INSTAGRAM_APP_SECRET'];
   dto = InstagramDto;
 
   editor = 'normal' as const;

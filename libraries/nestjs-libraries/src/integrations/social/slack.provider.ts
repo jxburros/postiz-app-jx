@@ -18,6 +18,7 @@ import { Tool } from '@gitroom/nestjs-libraries/integrations/tool.decorator';
 
 export class SlackProvider extends SocialAbstract implements SocialProvider {
   override maxConcurrentJob = 3; // Slack has moderate API limits
+  override requiredEnv = ['SLACK_ID', 'SLACK_SECRET'];
   identifier = 'slack';
   name = 'Slack';
   isBetweenSteps = false;

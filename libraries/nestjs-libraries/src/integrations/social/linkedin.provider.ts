@@ -72,6 +72,7 @@ export class LinkedinProvider extends SocialAbstract implements SocialProvider {
     'r_organization_social',
   ];
   override maxConcurrentJob = 2;
+  override requiredEnv = ['LINKEDIN_CLIENT_ID', 'LINKEDIN_CLIENT_SECRET'];
   refreshWait = true;
   editor = 'normal' as const;
   dto = LinkedinDto;

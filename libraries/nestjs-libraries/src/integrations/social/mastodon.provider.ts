@@ -33,6 +33,7 @@ type MastodonPendingData = {
 
 export class MastodonProvider extends SocialAbstract implements SocialProvider {
   override maxConcurrentJob = 5; // Mastodon instances typically have generous limits
+  override requiredEnv = ['MASTODON_CLIENT_ID', 'MASTODON_CLIENT_SECRET'];
   identifier = 'mastodon';
   name = 'Mastodon';
   isBetweenSteps = false;

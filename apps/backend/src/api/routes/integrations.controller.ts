@@ -226,6 +226,11 @@ export class IntegrationsController {
       throw new Error('Missing external url');
     }
 
+    const missingEnv = integrationProvider.missingEnv();
+    if (missingEnv.length) {
+      return { err: true, missingEnv };
+    }
+
     try {
       const getExternalUrl = integrationProvider.externalUrl
         ? {

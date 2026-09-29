@@ -55,6 +55,7 @@ type RedditPendingData = {
 
 export class RedditProvider extends SocialAbstract implements SocialProvider {
   override maxConcurrentJob = 1; // Reddit has strict rate limits (1 request per second)
+  override requiredEnv = ['REDDIT_CLIENT_ID', 'REDDIT_CLIENT_SECRET'];
   identifier = 'reddit';
   name = 'Reddit';
   isBetweenSteps = false;

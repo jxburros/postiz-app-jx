@@ -45,6 +45,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     'user.info.stats',
   ];
   override maxConcurrentJob = 10000;
+  override requiredEnv = ['TIKTOK_CLIENT_ID', 'TIKTOK_CLIENT_SECRET'];
   dto = TikTokDto;
   editor = 'normal' as const;
   maxLength() {

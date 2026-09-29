@@ -138,6 +138,9 @@ export class IntegrationManager {
             isExternal: !!p.externalUrl,
             isWeb3: !!p.isWeb3,
             isChromeExtension: !!p.isChromeExtension,
+            // this list is public, the missing env names are only returned by
+            // the authenticated GET /integrations/social/:integration
+            isConfigured: !p.missingEnv().length,
             ...(p.extensionCookies
               ? { extensionCookies: p.extensionCookies }
               : {}),

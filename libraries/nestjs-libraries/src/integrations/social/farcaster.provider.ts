@@ -48,6 +48,12 @@ export class FarcasterProvider
   isWeb3 = true;
   scopes = [] as string[];
   override maxConcurrentJob = 3; // Farcaster has moderate limits
+  // the signer created on connect needs the Neynar API key and the app account
+  override requiredEnv = [
+    'NEYNAR_SECRET_KEY',
+    'NEYNAR_APP_FID',
+    'NEYNAR_APP_MNEMONIC',
+  ];
   editor = 'normal' as const;
   maxLength() {
     return 800;

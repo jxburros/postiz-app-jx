@@ -49,6 +49,10 @@ export class TiktokBusinessProvider
     'video.publish',
   ];
   override maxConcurrentJob = 10000;
+  override requiredEnv = [
+    'TIKTOK_BUSINESS_CLIENT_ID',
+    'TIKTOK_BUSINESS_CLIENT_SECRET',
+  ];
   dto = TikTokDto;
   editor = 'normal' as const;
   maxLength() {

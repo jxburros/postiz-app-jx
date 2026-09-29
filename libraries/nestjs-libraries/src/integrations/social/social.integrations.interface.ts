@@ -183,6 +183,7 @@ export interface SocialProvider
     auth: Pick<AuthTokenDetails, 'id' | 'username'>,
     integration: Integration
   ): boolean;
+  missingEnv(): string[];
   finalizePost(
     accessToken: string,
     pendingData: any,

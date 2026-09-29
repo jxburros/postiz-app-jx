@@ -11,6 +11,8 @@ import { Integration } from '@prisma/client';
 
 export class MastodonCustomProvider extends MastodonProvider {
   override identifier = 'mastodon-custom';
+  // registers its app on the user's instance, no Mastodon credentials needed
+  override requiredEnv: string[] = [];
   override name = 'M. Instance';
   override maxConcurrentJob = 5; // Custom Mastodon instances typically have generous limits
   editor = 'normal' as const;

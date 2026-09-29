@@ -19,6 +19,7 @@ import { hasExtension } from '@gitroom/helpers/utils/has.extension';
 
 export class VkProvider extends SocialAbstract implements SocialProvider {
   override maxConcurrentJob = 2; // VK has moderate API limits
+  override requiredEnv = ['VK_ID'];
   identifier = 'vk';
   name = 'VK';
   isBetweenSteps = false;

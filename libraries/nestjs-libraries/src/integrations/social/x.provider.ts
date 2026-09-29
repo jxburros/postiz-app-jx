@@ -82,6 +82,7 @@ export class XProvider extends SocialAbstract implements SocialProvider {
   // single slot is no longer required - it would serialize every customer's
   // status checks behind uploads.
   override maxConcurrentJob = 10;
+  override requiredEnv = ['X_API_KEY', 'X_API_SECRET'];
   toolTip =
     'You will be logged in into your current account, if you would like a different account, change it first on X';
 

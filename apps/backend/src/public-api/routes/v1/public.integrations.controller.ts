@@ -300,6 +300,17 @@ export class PublicIntegrationsController {
       );
     }
 
+    const missingEnv = integrationProvider.missingEnv();
+    if (missingEnv.length) {
+      throw new HttpException(
+        {
+          msg: 'This integration is not configured on this server',
+          missingEnv,
+        },
+        400
+      );
+    }
+
     try {
       const { codeVerifier, state, url } =
         await integrationProvider.generateAuthUrl();

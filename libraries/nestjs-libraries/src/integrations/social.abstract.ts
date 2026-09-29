@@ -124,6 +124,21 @@ export abstract class SocialAbstract {
   abstract identifier: string;
   maxConcurrentJob = 1;
 
+  // Env vars the provider cannot connect without (usually its OAuth app
+  // credentials). Only list vars the backend reads itself, a split frontend /
+  // backend deployment may not share the rest.
+  requiredEnv: string[] = [];
+
+  /**
+   * The required env vars that are not set on this server. The add-channel
+   * screen shows a provider with missing ones as not configured, instead of
+   * sending the user to a broken OAuth page. Override when a provider accepts
+   * alternative env vars.
+   */
+  public missingEnv(): string[] {
+    return this.requiredEnv.filter((key) => !process.env[key]);
+  }
+
   public handleErrors(
     body: string,
     status: number

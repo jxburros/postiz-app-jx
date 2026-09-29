@@ -84,6 +84,7 @@ type TumblrContentBlock =
 
 export class TumblrProvider extends SocialAbstract implements SocialProvider {
   override maxConcurrentJob = 3;
+  override requiredEnv = ['TUMBLR_CLIENT_ID', 'TUMBLR_CLIENT_SECRET'];
   identifier = 'tumblr';
   name = 'Tumblr';
   isBetweenSteps = true;

@@ -43,6 +43,7 @@ export class InstagramProvider
     'instagram_manage_insights',
   ];
   override maxConcurrentJob = 400;
+  override requiredEnv = ['FACEBOOK_APP_ID', 'FACEBOOK_APP_SECRET'];
   editor = 'normal' as const;
   dto = InstagramDto;
   maxLength() {

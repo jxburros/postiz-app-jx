@@ -51,6 +51,19 @@ export class GmbProvider extends SocialAbstract implements SocialProvider {
   editor = 'normal' as const;
   dto = GmbSettingsDto;
 
+  // Falls back to the YouTube OAuth app, see clientAndGmb
+  public override missingEnv() {
+    const clientId =
+      process.env.GOOGLE_GMB_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID;
+    const clientSecret =
+      process.env.GOOGLE_GMB_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET;
+
+    return [
+      ...(clientId ? [] : ['GOOGLE_GMB_CLIENT_ID']),
+      ...(clientSecret ? [] : ['GOOGLE_GMB_CLIENT_SECRET']),
+    ];
+  }
+
   maxLength() {
     return 1500;
   }

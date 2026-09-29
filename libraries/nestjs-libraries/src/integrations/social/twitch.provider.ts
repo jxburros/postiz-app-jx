@@ -13,6 +13,7 @@ import { timer } from '@gitroom/helpers/utils/timer';
 
 export class TwitchProvider extends SocialAbstract implements SocialProvider {
   override maxConcurrentJob = 1;
+  override requiredEnv = ['TWITCH_CLIENT_ID', 'TWITCH_CLIENT_SECRET'];
   identifier = 'twitch';
   name = 'Twitch';
   isBetweenSteps = false;
