@@ -723,7 +723,7 @@ const OnboardingStep3: FC<{ onBack: () => void; onFinish: () => void }> = ({
         <div className="absolute left-0 top-0 w-full h-full flex justify-center">
           <iframe
             className="h-full aspect-video"
-            src="https://www.youtube.com/embed/BdsCVvEYgHU?si=vvhaZJ8I5oXXvVJS?autoplay=1"
+            src="https://www.youtube.com/embed/BdsCVvEYgHU?si=vvhaZJ8I5oXXvVJS&autoplay=1"
             title="Postiz Tutorial"
             allow="autoplay"
             allowFullScreen
