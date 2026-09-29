@@ -14,13 +14,15 @@ import { useVariables } from '@gitroom/react/helpers/variable.context';
 import {
   AnyMcpClient,
   CopyButton,
+  getCliSteps,
   getMcpConfig,
   isChatOnlyMcpClient,
-  localCliSteps,
+  isCliDefaultApi,
   McpAuth,
   McpClient,
   mcpClients,
   mcpConnectorUrls,
+  RemoteMcpUrlWarning,
 } from '@gitroom/frontend/components/public-api/public.component';
 import { McpClientIcon } from '@gitroom/frontend/components/public-api/mcp.client.icons';
 
@@ -274,8 +276,6 @@ const otherAgents = mcpClients.filter(
 const apiTab = 'API' as const;
 type OnboardingTab = OnboardingAgent | typeof otherTab | typeof apiTab;
 
-const cliCommands = localCliSteps.map((step) => step.code);
-
 const OnboardingStep2: FC<{ onBack: () => void; onNext: () => void }> = ({
   onBack,
   onNext,
@@ -297,15 +297,23 @@ const OnboardingStep2: FC<{ onBack: () => void; onNext: () => void }> = ({
   const { config, hint } =
     agent === apiTab
       ? { config: '', hint: '' }
-      : getMcpConfig(agent, auth, mcpBase, apiKey);
+      : getMcpConfig(agent, auth, mcpBase, apiKey, backendUrl);
 
-  const maskedConfig =
-    revealed || auth === 'oauth' || !apiKey
-      ? config
-      : config.replace(
+  const maskApiKey = (text: string) =>
+    revealed || !apiKey
+      ? text
+      : text.replace(
           new RegExp(apiKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
           '*'.repeat(apiKey.length)
         );
+
+  const maskedConfig = auth === 'oauth' ? config : maskApiKey(config);
+
+  // outside Postiz Cloud the CLI needs this server's URL and the API key
+  const cliWithApiKey = !isCliDefaultApi(backendUrl);
+  const cliCommands = getCliSteps('local', backendUrl, apiKey).map(
+    (step) => step.code
+  );
 
   const connector =
     agent === 'Claude' && billingEnabled
@@ -497,6 +505,7 @@ const OnboardingStep2: FC<{ onBack: () => void; onNext: () => void }> = ({
                 'Your agent will open a browser window to sign in to Postiz.'
               )}`}
           </div>
+          <RemoteMcpUrlWarning client={agent} mcpBase={mcpBase} />
           <pre className="bg-newBgColorInner border border-newBorder rounded-[8px] p-[12px] text-[12px] whitespace-pre-wrap break-all overflow-x-auto leading-[1.5]">
             {maskedConfig}
           </pre>
@@ -530,9 +539,18 @@ const OnboardingStep2: FC<{ onBack: () => void; onNext: () => void }> = ({
       </div>
       <div className="p-[20px] flex flex-col gap-[8px] flex-1">
         <pre className="bg-newBgColorInner border border-newBorder rounded-[8px] p-[12px] text-[12px] whitespace-pre-wrap break-all overflow-x-auto leading-[1.5] flex-1">
-          {cliCommands.join('\n')}
+          {maskApiKey(cliCommands.join('\n'))}
         </pre>
         <div className="flex gap-[8px]">
+          {cliWithApiKey && (
+            <button
+              type="button"
+              onClick={() => setRevealed(!revealed)}
+              className="cursor-pointer px-[16px] h-[36px] bg-btnSimple hover:bg-boxHover transition-colors rounded-[8px] text-[13px] font-[600] flex items-center gap-[6px]"
+            >
+              {revealed ? t('hide', 'Hide') : t('reveal', 'Reveal')}
+            </button>
+          )}
           <CopyButton
             text={cliCommands.join(' && ')}
             label={t('copy', 'Copy')}

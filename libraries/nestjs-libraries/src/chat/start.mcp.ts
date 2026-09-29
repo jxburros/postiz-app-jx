@@ -143,6 +143,20 @@ export const startMcp = async (app: INestApplication) => {
     appResources: claudeAppResources,
   });
 
+  // NEXT_PUBLIC_BACKEND_URL can carry a path prefix (the docker image serves
+  // the backend under /api), which new URL('/path', base) drops. The OAuth
+  // discovery documents must advertise the public URLs, prefix included, while
+  // requests may reach this server with the prefix already stripped by the
+  // reverse proxy (see var/docker/nginx.conf) or not.
+  const publicBackendUrl = new URL(process.env.NEXT_PUBLIC_BACKEND_URL!);
+  const backendPathPrefix = publicBackendUrl.pathname.replace(/\/+$/, '');
+  const publicUrl = (path: string) =>
+    new URL(backendPathPrefix + path, publicBackendUrl.origin).toString();
+  const withoutPathPrefix = (path: string) =>
+    backendPathPrefix && path.startsWith(`${backendPathPrefix}/`)
+      ? path.slice(backendPathPrefix.length)
+      : path;
+
   // Two RFC 8414 path-based issuers backed by the same endpoints and code.
   // /mcp-oauth-chatgpt is what the ChatGPT app submission points at: it does
   // not advertise a registration_endpoint, so the OpenAI builder defaults to
@@ -152,11 +166,11 @@ export const startMcp = async (app: INestApplication) => {
   // self-registering client
   const authorizationServers: Record<string, { issuer: string; registration: boolean }> = {
     '/mcp-oauth-chatgpt': {
-      issuer: new URL('/mcp-oauth-chatgpt', process.env.NEXT_PUBLIC_BACKEND_URL!).toString(),
+      issuer: publicUrl('/mcp-oauth-chatgpt'),
       registration: false,
     },
     '/mcp-oauth-dynamic': {
-      issuer: new URL('/mcp-oauth-dynamic', process.env.NEXT_PUBLIC_BACKEND_URL!).toString(),
+      issuer: publicUrl('/mcp-oauth-dynamic'),
       registration: true,
     },
   };
@@ -186,7 +200,7 @@ export const startMcp = async (app: INestApplication) => {
   const createResourceMiddleware = (mcpPath: string, authorizationServer: string) =>
     createOAuthMiddleware({
       oauth: {
-        resource: new URL(mcpPath, process.env.NEXT_PUBLIC_BACKEND_URL!).toString(),
+        resource: publicUrl(mcpPath),
         authorizationServers: [authorizationServers[authorizationServer].issuer],
         scopesSupported: oauthScopes,
         validateToken: async (token: string) => {
@@ -226,7 +240,7 @@ export const startMcp = async (app: INestApplication) => {
     // Only the paths in oauthResources are OAuth-protected.
     // Answering discovery on any other path (including the root, which clients
     // fall back to) makes them demand OAuth for /mcp/:id too
-    const resource = oauthResources[req.path];
+    const resource = oauthResources[withoutPathPrefix(req.path)];
     if (!resource) {
       next();
       return;
@@ -237,7 +251,7 @@ export const startMcp = async (app: INestApplication) => {
   });
 
   app.use('/.well-known/oauth-authorization-server', async (req: Request, res: Response, next: () => void) => {
-    const server = authorizationServers[req.path];
+    const server = authorizationServers[withoutPathPrefix(req.path)];
     if (!server) {
       next();
       return;
@@ -257,7 +271,7 @@ export const startMcp = async (app: INestApplication) => {
   });
 
   app.use('/.well-known/openid-configuration', async (req: Request, res: Response, next: () => void) => {
-    const server = authorizationServers[req.path];
+    const server = authorizationServers[withoutPathPrefix(req.path)];
     if (!server || !enableOidcEmailClaims) {
       next();
       return;

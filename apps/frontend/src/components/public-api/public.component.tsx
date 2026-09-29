@@ -64,6 +64,29 @@ export type McpAuth = 'oauth' | 'apikey';
 export const getMcpOauthUrl = (mcpBase: string) =>
   `${mcpBase}/mcp-oauth-dynamic`;
 
+// The CLI talks to Postiz Cloud unless POSTIZ_API_URL says otherwise, and
+// `postiz auth:login` signs in through the Cloud-only cli-auth.postiz.com,
+// so any other server needs its URL and an API key instead
+const cliDefaultApiUrl = 'https://api.postiz.com';
+export const isCliDefaultApi = (backendUrl: string) =>
+  backendUrl.replace(/\/+$/, '') === cliDefaultApiUrl;
+
+// Remote clients (Claude, ChatGPT) connect from their own cloud, they can't
+// reach a localhost, private network or plain http server
+export const isPublicHttpsUrl = (url: string) => {
+  try {
+    const { protocol, hostname } = new URL(url);
+    return (
+      protocol === 'https:' &&
+      !['localhost', '127.0.0.1', '0.0.0.0', '[::1]'].includes(hostname) &&
+      !hostname.endsWith('.local') &&
+      !/^(10|127|192\.168|172\.(1[6-9]|2\d|3[01]))\./.test(hostname)
+    );
+  } catch (err) {
+    return false;
+  }
+};
+
 export const isRemoteMcpClient = (client: string): client is RemoteMcpClient =>
   client in remoteMcpClients;
 
@@ -75,11 +98,14 @@ export const getMcpConfig = (
   client: AnyMcpClient,
   auth: McpAuth,
   mcpBase: string,
-  apiKey: string
+  apiKey: string,
+  backendUrl: string
 ): { config: string; hint: string } => {
   if (isChatOnlyMcpClient(client)) {
     return {
-      config: chatOnlyMcpClients[client],
+      config: isCliDefaultApi(backendUrl)
+        ? chatOnlyMcpClients[client]
+        : `${chatOnlyMcpClients[client]} Also set the POSTIZ_API_URL environment variable to ${backendUrl}.`,
       hint: 'Paste this into the chat. The agent will ask you for your API key.',
     };
   }
@@ -295,12 +321,36 @@ export const CopyButton = ({
   );
 };
 
+export const RemoteMcpUrlWarning = ({
+  client,
+  mcpBase,
+}: {
+  client: string;
+  mcpBase: string;
+}) => {
+  const t = useT();
+  if (!isRemoteMcpClient(client) || isPublicHttpsUrl(mcpBase)) {
+    return null;
+  }
+
+  return (
+    <div className="text-[12px] text-amber-400 font-[500]">
+      {t(
+        'remote_mcp_url_not_public',
+        'This client connects from the internet, so this URL must be publicly reachable over HTTPS. For a local or private Postiz, use Claude Code, Cursor or another client that runs on your computer.'
+      )}
+    </div>
+  );
+};
+
 const McpSection = ({
   user,
   mcpBase,
+  backendUrl,
 }: {
   user: { publicApi: string };
   mcpBase: string;
+  backendUrl: string;
 }) => {
   const t = useT();
   const { billingEnabled } = useVariables();
@@ -312,7 +362,8 @@ const McpSection = ({
     activeClient,
     auth,
     mcpBase,
-    user.publicApi
+    user.publicApi,
+    backendUrl
   );
 
   const baseUrl = auth === 'oauth' ? getMcpOauthUrl(mcpBase) : `${mcpBase}/mcp`;
@@ -438,6 +489,7 @@ const McpSection = ({
                 'Your agent will open a browser window to sign in to Postiz.'
               )}`}
           </div>
+          <RemoteMcpUrlWarning client={activeClient} mcpBase={mcpBase} />
           <pre className="bg-newBgColorInner border border-newBorder rounded-[8px] p-[16px] text-[13px] whitespace-pre-wrap break-all overflow-x-auto leading-[1.6]">
             {maskedConfig}
           </pre>
@@ -515,7 +567,7 @@ const McpSection = ({
   );
 };
 
-export const localCliSteps = [
+const localCliSteps = [
   {
     label: 'Install the CLI',
     code: 'npm install -g postiz',
@@ -545,21 +597,60 @@ const ciCliSteps = [
   },
 ] as const;
 
-const CliSection = ({ apiKey }: { apiKey: string }) => {
+// Any server other than Postiz Cloud, locally and in CI alike
+const selfHostedCliSteps = [
+  {
+    label: 'Install the CLI',
+    code: 'npm install -g postiz',
+  },
+  {
+    label: 'Point the CLI at this Postiz server',
+    code: 'export POSTIZ_API_URL="{API_URL}"',
+  },
+  {
+    label: 'Set your API key as an environment variable',
+    code: 'export POSTIZ_API_KEY="{API_KEY}"',
+  },
+  {
+    label: 'Install the Postiz skill for your AI agent',
+    code: 'npx skills add gitroomhq/postiz-agent',
+  },
+] as const;
+
+export const getCliSteps = (
+  mode: 'local' | 'ci',
+  backendUrl: string,
+  apiKey: string
+) =>
+  (!isCliDefaultApi(backendUrl)
+    ? selfHostedCliSteps
+    : mode === 'local'
+    ? localCliSteps
+    : ciCliSteps
+  ).map((step) => ({
+    ...step,
+    code: step.code
+      .replace('{API_URL}', backendUrl)
+      .replace('{API_KEY}', apiKey),
+  }));
+
+const CliSection = ({
+  apiKey,
+  backendUrl,
+}: {
+  apiKey: string;
+  backendUrl: string;
+}) => {
   const t = useT();
   const [mode, setMode] = useState<'local' | 'ci'>('local');
   const [revealed, setRevealed] = useState(false);
+  const selfHosted = !isCliDefaultApi(backendUrl);
+  const withApiKey = selfHosted || mode === 'ci';
 
-  const steps =
-    mode === 'local'
-      ? localCliSteps.map((step) => ({ ...step }))
-      : ciCliSteps.map((step) => ({
-          ...step,
-          code: step.code.replace('{API_KEY}', apiKey),
-        }));
+  const steps = getCliSteps(mode, backendUrl, apiKey);
 
   const displaySteps =
-    mode === 'ci' && !revealed
+    withApiKey && !revealed
       ? steps.map((step) => ({
           ...step,
           code: step.code.replace(
@@ -595,25 +686,34 @@ const CliSection = ({ apiKey }: { apiKey: string }) => {
         </div>
       </div>
       <div className="p-[20px] flex flex-col gap-[16px]">
-        <div className="flex gap-[6px]">
-          {(['local', 'ci'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={clsx(
-                'cursor-pointer px-[14px] h-[36px] text-[13px] font-[500] rounded-[8px] transition-colors',
-                mode === m
-                  ? 'bg-[#612BD3] text-white'
-                  : 'bg-btnSimple text-customColor18 hover:bg-boxHover hover:text-textColor'
-              )}
-              onClick={() => setMode(m)}
-            >
-              {m === 'local'
-                ? t('locally', 'Locally')
-                : t('ci_remote_servers', 'CI / Remote servers')}
-            </button>
-          ))}
-        </div>
+        {selfHosted ? (
+          <div className="text-[12px] text-textItemBlur font-[500]">
+            {t(
+              'cli_self_hosted_hint',
+              'The CLI connects to Postiz Cloud by default, so point it at this server and sign in with your API key (postiz auth:login only works with Postiz Cloud).'
+            )}
+          </div>
+        ) : (
+          <div className="flex gap-[6px]">
+            {(['local', 'ci'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={clsx(
+                  'cursor-pointer px-[14px] h-[36px] text-[13px] font-[500] rounded-[8px] transition-colors',
+                  mode === m
+                    ? 'bg-[#612BD3] text-white'
+                    : 'bg-btnSimple text-customColor18 hover:bg-boxHover hover:text-textColor'
+                )}
+                onClick={() => setMode(m)}
+              >
+                {m === 'local'
+                  ? t('locally', 'Locally')
+                  : t('ci_remote_servers', 'CI / Remote servers')}
+              </button>
+            ))}
+          </div>
+        )}
         {displaySteps.map((step, i) => (
           <div key={i} className="flex flex-col gap-[6px]">
             <div className="text-[13px] font-[600] text-customColor18">
@@ -625,7 +725,7 @@ const CliSection = ({ apiKey }: { apiKey: string }) => {
           </div>
         ))}
         <div className="flex gap-[8px]">
-          {mode === 'ci' && (
+          {withApiKey && (
             <button
               type="button"
               onClick={() => setRevealed(!revealed)}
@@ -857,9 +957,9 @@ const PublicApiContent = () => {
         </div>
       </div>
 
-      <CliSection apiKey={user.publicApi} />
+      <CliSection apiKey={user.publicApi} backendUrl={backendUrl} />
 
-      <McpSection user={user} mcpBase={mcpBase} />
+      <McpSection user={user} mcpBase={mcpBase} backendUrl={backendUrl} />
     </div>
   );
 };
