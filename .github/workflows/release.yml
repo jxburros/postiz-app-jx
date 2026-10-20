@@ -1,0 +1,271 @@
+name: Release
+'on':
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel
+        type: choice
+        options:
+        - stable
+        - preview
+        default: stable
+      dry_run:
+        description: Build and verify without publishing
+        type: boolean
+        default: true
+      app:
+        description: Optional app ID; empty selects every advanced app
+        type: string
+        default: ''
+      extension_destination:
+        description: Extension distribution destination (used only when publishing)
+        type: choice
+        options:
+        - chrome
+        - nextcloud
+        - both
+        default: chrome
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  plan:
+    uses: JX-Holdings-LLC/release-infrastructure/.github/workflows/plan.yml@e219396d4dcab9a14c9d7ee1730320fc94006dcc
+    with:
+      toolkit-ref: e219396d4dcab9a14c9d7ee1730320fc94006dcc
+      channel: ${{ inputs.channel }}
+      app: ${{ inputs.app }}
+  containers:
+    runs-on: ${{ matrix.runner }}
+    needs:
+    - plan
+    if: needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz'].selected
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - runner: ubuntu-latest
+          arch: amd64
+        - runner: ubuntu-24.04-arm
+          arch: arm64
+    env:
+      VERSION: ${{ fromJSON(needs.plan.outputs.apps)['postiz'].version }}
+      RELEASE_SOURCE_SHA: ${{ needs.plan.outputs.sha }}
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ needs.plan.outputs.sha }}
+        persist-credentials: false
+        fetch-depth: 0
+    - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+    - name: Build the OCI image without registry credentials
+      run: |
+        docker buildx build --platform linux/${{ matrix.arch }} -f Dockerfile.dev   --build-arg NEXT_PUBLIC_VERSION="$VERSION" --label org.opencontainers.image.revision="$RELEASE_SOURCE_SHA"   --pull --provenance=false --sbom=false   --output "type=oci,dest=postiz-$VERSION-linux-${{ matrix.arch }}.tar" .
+        test -s "postiz-$VERSION-linux-${{ matrix.arch }}.tar"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: oci-${{ matrix.arch }}
+        path: postiz-*.tar
+        if-no-files-found: error
+  assemble-containers:
+    runs-on: ubuntu-latest
+    needs:
+    - plan
+    - containers
+    if: needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz'].selected
+    env:
+      RELEASE_SOURCE_SHA: ${{ needs.plan.outputs.sha }}
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ needs.plan.outputs.sha }}
+        persist-credentials: false
+        fetch-depth: 0
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        pattern: oci-*
+        path: artifacts
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: JX-Holdings-LLC/release-infrastructure
+        ref: e219396d4dcab9a14c9d7ee1730320fc94006dcc
+        path: .toolkit
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: 24
+    - name: Stage the complete configured release inventory
+      shell: bash
+      env:
+        RELEASE_APP: postiz
+      run: node .toolkit/src/release.mjs stage --app "$RELEASE_APP" --from artifacts --bundle unified-bundle --sha
+        "$RELEASE_SOURCE_SHA"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bundle-postiz
+        path: unified-bundle
+        if-no-files-found: error
+  container-registry:
+    runs-on: ubuntu-latest
+    needs:
+    - plan
+    - assemble-containers
+    if: needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz'].selected && !inputs.dry_run
+    permissions:
+      contents: read
+      packages: write
+    env:
+      VERSION: ${{ fromJSON(needs.plan.outputs.apps)['postiz'].version }}
+      REGISTRY_TOKEN: ${{ github.token }}
+      ACTOR: ${{ github.actor }}
+      REPOSITORY: ${{ github.repository }}
+      RELEASE_CHANNEL: ${{ inputs.channel }}
+    steps:
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: bundle-postiz
+        path: images
+    - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+    - name: Publish both prebuilt architectures and one manifest
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update && sudo apt-get install -y skopeo
+        image="ghcr.io/${REPOSITORY,,}"
+        printf '%s' "$REGISTRY_TOKEN" | skopeo login ghcr.io --username "$ACTOR" --password-stdin
+        printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io --username "$ACTOR" --password-stdin
+        for arch in amd64 arm64; do
+          archive="images/postiz-$VERSION-linux-$arch.tar"
+          local_digest=$(skopeo inspect --format '{{.Digest}}' "oci-archive:$archive")
+          if remote_digest=$(skopeo inspect --format '{{.Digest}}' "docker://$image:$VERSION-$arch" 2>/dev/null); then
+            [ "$local_digest" = "$remote_digest" ] || { echo 'Existing registry version has different bytes'; exit 1; }
+          else
+            skopeo copy --all "oci-archive:$archive" "docker://$image:$VERSION-$arch"
+          fi
+        done
+        tags=(--tag "$image:$VERSION")
+        [ "$RELEASE_CHANNEL" != stable ] || tags+=(--tag "$image:latest")
+        docker buildx imagetools create "${tags[@]}" "$image:$VERSION-amd64" "$image:$VERSION-arm64"
+  extension:
+    runs-on: ubuntu-latest
+    needs:
+    - plan
+    if: needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz-extension'].selected
+    env:
+      VERSION: ${{ fromJSON(needs.plan.outputs.apps)['postiz-extension'].version }}
+      RELEASE_SOURCE_SHA: ${{ needs.plan.outputs.sha }}
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ needs.plan.outputs.sha }}
+        persist-credentials: false
+        fetch-depth: 0
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: 24
+    - run: |
+        pnpm install --frozen-lockfile
+        FRONTEND_URL=https://platform.postiz.com pnpm run build:extension
+        mkdir extension-output
+        cp apps/extension/extension.zip "extension-output/Postiz-extension-$VERSION.zip"
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: JX-Holdings-LLC/release-infrastructure
+        ref: e219396d4dcab9a14c9d7ee1730320fc94006dcc
+        path: .toolkit
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: 24
+    - name: Stage the complete configured release inventory
+      shell: bash
+      env:
+        RELEASE_APP: postiz-extension
+      run: node .toolkit/src/release.mjs stage --app "$RELEASE_APP" --from extension-output --bundle unified-bundle
+        --sha "$RELEASE_SOURCE_SHA"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: bundle-postiz-extension
+        path: unified-bundle
+        if-no-files-found: error
+  chrome:
+    runs-on: ubuntu-latest
+    needs:
+    - plan
+    - extension
+    if: needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz-extension'].selected
+      && !inputs.dry_run && (inputs.extension_destination == 'chrome' || inputs.extension_destination == 'both')
+    steps:
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: bundle-postiz-extension
+        path: extension
+    - uses: mnao305/chrome-extension-upload@v5.0.0
+      with:
+        extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+        client-id: ${{ secrets.CHROME_CLIENT_ID }}
+        client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+        refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        file-path: extension/Postiz-extension-${{ fromJSON(needs.plan.outputs.apps)['postiz-extension'].version
+          }}.zip
+  nextcloud:
+    runs-on: ubuntu-latest
+    needs:
+    - plan
+    - extension
+    if: needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz-extension'].selected
+      && !inputs.dry_run && (inputs.extension_destination == 'nextcloud' || inputs.extension_destination == 'both')
+    steps:
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: bundle-postiz-extension
+        path: extension
+    - name: Upload the prebuilt extension to Nextcloud
+      env:
+        NEXTCLOUD_URL: ${{ secrets.NEXTCLOUD_URL }}
+        NEXTCLOUD_USERNAME: ${{ secrets.NEXTCLOUD_USERNAME }}
+        NEXTCLOUD_PASSWORD: ${{ secrets.NEXTCLOUD_PASSWORD }}
+      run: |
+        set -euo pipefail
+        file=$(find extension -name "*.zip" -print -quit)
+        curl --fail --show-error -T "$file" -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" "$NEXTCLOUD_URL/extension.zip"
+  publish-postiz:
+    needs:
+    - plan
+    - assemble-containers
+    - container-registry
+    if: always() && needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz'].selected
+      && needs['assemble-containers'].result == 'success' && (inputs.dry_run || needs['container-registry'].result
+      == 'success')
+    uses: JX-Holdings-LLC/release-infrastructure/.github/workflows/finish.yml@e219396d4dcab9a14c9d7ee1730320fc94006dcc
+    permissions:
+      contents: write
+    with:
+      toolkit-ref: e219396d4dcab9a14c9d7ee1730320fc94006dcc
+      source-sha: ${{ needs.plan.outputs.sha }}
+      app: postiz
+      security: standard
+      artifact: bundle-postiz
+      dry-run: ${{ inputs.dry_run }}
+  publish-postiz-extension:
+    needs:
+    - plan
+    - extension
+    - chrome
+    - nextcloud
+    if: always() && needs.plan.outputs.selected == 'true' && fromJSON(needs.plan.outputs.apps)['postiz-extension'].selected
+      && needs.extension.result == 'success' && (inputs.dry_run || ((needs.chrome.result == 'success' || needs.chrome.result
+      == 'skipped') && (needs.nextcloud.result == 'success' || needs.nextcloud.result == 'skipped')))
+    uses: JX-Holdings-LLC/release-infrastructure/.github/workflows/finish.yml@e219396d4dcab9a14c9d7ee1730320fc94006dcc
+    permissions:
+      contents: write
+    with:
+      toolkit-ref: e219396d4dcab9a14c9d7ee1730320fc94006dcc
+      source-sha: ${{ needs.plan.outputs.sha }}
+      app: postiz-extension
+      security: standard
+      artifact: bundle-postiz-extension
+      dry-run: ${{ inputs.dry_run }}

@@ -110,7 +110,6 @@
 | [ChatbotX](https://chatbotx.io/?ref=postiz) | <img src="https://github.com/user-attachments/assets/0aa6b058-9a64-46d3-bc26-337abc51737d" alt="ChatbotX" width="500"/> | The ManyChat alternative that you can self-host, white-label, and resell to your clients. Bring your own OpenClaw, Hermes, or Claude agents! |
 | [RapidProxy](https://www.rapidproxy.io/?ref=postiz) | <img width="700" height="412" alt="WP-PROXY-THUMBNAIL-41" src="https://github.com/user-attachments/assets/6cf5b2c9-2687-4181-8964-2e7b90eace4f" /> | RapidProxy provides 90M+ residential IPs for social media, browser automation, and AI workflows, with smart rotation and stable sessions. From $0.55/GB; use RAPID10 for 10% off.
 
-
 # Intro
 
 - Schedule all your social media posts (many AI features)
@@ -196,3 +195,11 @@ This repository's source code is available under the [AGPL-3.0 license](LICENSE)
 <p align="center">
   <img src="https://github.com/snyk-labs/secure-developer-sample-repo/raw/main/badge_full.svg" alt="Secure Developer Badge Full" width="150">
 </p>
+
+## Unified release procedure
+
+`release.json` is the authoritative release manifest. Keep configured embedded versions synchronized and advance affected apps (patch by default) before merging changes into main. The first adoption establishes a baseline; later PRs must pass **Release version validation**.
+
+Use **Actions → Release → Run workflow** from **main**, choose stable or preview, and leave **dry_run** enabled first. Only apps ahead of their published version in their own namespace are selected. Build/test/sign all required packages before publishing. Tag pushes and merges no longer publish migrated apps automatically. After inspecting the dry run, dispatch with dry_run disabled and satisfy configured approvals. Published versions are never overwritten; use a new version for a correction.
+
+See [.release/README.md](.release/README.md) for this repository's inventory, credentials, compatibility, and validation limits. Shared implementation: [JX Holdings release infrastructure](https://github.com/JX-Holdings-LLC/release-infrastructure).
