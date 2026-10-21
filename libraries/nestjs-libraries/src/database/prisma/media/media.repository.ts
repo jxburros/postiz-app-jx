@@ -135,7 +135,7 @@ export class MediaRepository {
         organization: {
           id: org,
         },
-        deletedAt: null,
+        deletedAt: null as Date | null,
         status: { not: 'processing' },
         ...searchFilter,
       },
