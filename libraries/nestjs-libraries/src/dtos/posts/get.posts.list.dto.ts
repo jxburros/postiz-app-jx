@@ -9,6 +9,7 @@ import {
 import { Transform } from 'class-transformer';
 
 export type PostListStateFilter = 'all' | 'scheduled' | 'draft' | 'published';
+export type PostListKindFilter = 'all' | 'posts' | 'stories';
 
 export class GetPostsListDto {
   @IsOptional()
@@ -31,4 +32,8 @@ export class GetPostsListDto {
   @IsOptional()
   @IsIn(['all', 'scheduled', 'draft', 'published'])
   state?: PostListStateFilter = 'all';
+
+  @IsOptional()
+  @IsIn(['all', 'posts', 'stories'])
+  kind?: PostListKindFilter = 'all';
 }

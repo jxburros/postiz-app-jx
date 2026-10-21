@@ -231,8 +231,9 @@ export const CalendarWeekProvider: FC<{
       limit: '100',
       customer: filters?.customer?.toString() || '',
       state: listState,
+      kind,
     }).toString();
-  }, [listPage, filters.customer, listState]);
+  }, [listPage, filters.customer, listState, kind]);
 
   const loadListData = useCallback(async () => {
     const response = await fetch(`/posts/list?${listParams}`);
@@ -342,12 +343,13 @@ export const CalendarWeekProvider: FC<{
   const setKind = useCallback(
     (newKind: PostKindFilter) => {
       setKindRaw(newKind);
+      setListPage(0);
       updateUrl(filters, newKind);
     },
     [filters, updateUrl]
   );
 
-  // Client-side Posts / Stories filter over what was fetched
+  // Posts / Stories filter over the calendar's date range
   const filterKind = useCallback(
     (list: any[]) => {
       if (kind === 'all') {
@@ -364,11 +366,9 @@ export const CalendarWeekProvider: FC<{
   const posts = useMemo(() => calendarData?.posts || [], [calendarData?.posts]);
   const comments = useMemo(() => calendarData?.comments || [], [calendarData?.comments]);
 
-  // List view data
-  const listPosts = useMemo(
-    () => filterKind(listData?.posts || []),
-    [listData?.posts, filterKind]
-  );
+  // List view data, the Posts / Stories filter is applied by the server so
+  // the paging stays right
+  const listPosts = useMemo(() => listData?.posts || [], [listData?.posts]);
   const listTotal = listData?.total || 0;
   const listTotalPages = Math.ceil(listTotal / 100);
 

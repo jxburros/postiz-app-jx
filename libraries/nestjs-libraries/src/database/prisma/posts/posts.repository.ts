@@ -244,6 +244,22 @@ export class PostsRepository {
     const orderDirection: 'asc' | 'desc' =
       stateFilter === 'published' ? 'desc' : 'asc';
 
+    // Settings are stored as a JSON string, a story has "post_type":"story"
+    const storySettings = { contains: '"post_type":"story"' };
+    const kindFilter =
+      query.kind === 'stories'
+        ? [{ settings: storySettings }]
+        : query.kind === 'posts'
+        ? [
+            {
+              OR: [
+                { settings: null as string | null },
+                { NOT: { settings: storySettings } },
+              ],
+            },
+          ]
+        : [];
+
     const where = {
       AND: [
         {
@@ -253,6 +269,7 @@ export class PostsRepository {
             },
           ],
         },
+        ...kindFilter,
       ],
       ...stateAndDate,
       // Published posts were already posted (publishDate in the past), so fetch
