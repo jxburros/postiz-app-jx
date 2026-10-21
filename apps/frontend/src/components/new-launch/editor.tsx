@@ -140,7 +140,8 @@ export const EditorWrapper: FC<{
       internal: state.internal.find((p) => p.integration.id === state.current),
       internalFromAll: state.integrations.find((p) => p.id === state.current),
       global: state.global,
-      comments: state.comments,
+      // A story is a single piece of media, it can't have a comment thread
+      comments: state.postKind === 'story' ? false : state.comments,
       current: state.current,
       addRemoveInternal: state.addRemoveInternal,
       dummy: state.dummy,
