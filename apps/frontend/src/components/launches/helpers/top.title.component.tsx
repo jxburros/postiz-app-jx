@@ -45,9 +45,9 @@ export const TopTitle: FC<{
         {shouldExpend !== undefined && (
           <div className="cursor-pointer">
             {!shouldExpend ? (
-              <ExpandIcon onClick={expend} className="text-white" />
+              <ExpandIcon onClick={expend} className="text-textColor" />
             ) : (
-              <CollapseIcon onClick={collapse} className="text-white" />
+              <CollapseIcon onClick={collapse} className="text-textColor" />
             )}
           </div>
         )}

@@ -568,7 +568,7 @@ const OnboardingStep2: FC<{ onBack: () => void; onNext: () => void }> = ({
                   tab === item
                     ? 'bg-[#612BD3] text-white'
                     : item === apiTab
-                    ? 'bg-btnSimple text-[#a78bfa] hover:bg-boxHover hover:text-[#c4b5fd]'
+                    ? 'bg-btnSimple text-seventh hover:bg-boxHover hover:text-forth'
                     : 'bg-btnSimple text-customColor18 hover:bg-boxHover hover:text-textColor'
                 )}
                 onClick={() => setTab(item)}

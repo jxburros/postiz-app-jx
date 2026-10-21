@@ -438,7 +438,7 @@ div div .set-font-family {
   overflow: hidden;
   max-width: 100%;
   white-space: nowrap;
-  color: white;
+  color: rgb(var(--new-textColor));
   animation: loading 4s linear 0s infinite;
   filter: blur(0.4px);
 }

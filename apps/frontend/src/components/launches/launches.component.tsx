@@ -172,7 +172,7 @@ export const MenuGroupComponent: FC<
       {collectedProps.isOver && (
         <div className="absolute start-0 top-0 w-full h-full pointer-events-none">
           <div className="w-full h-full start-0 top-0 relative">
-            <div className="bg-white/30 w-full h-full p-[8px] box-content rounded-md" />
+            <div className="bg-newTextColor/10 w-full h-full p-[8px] box-content rounded-md" />
           </div>
         </div>
       )}

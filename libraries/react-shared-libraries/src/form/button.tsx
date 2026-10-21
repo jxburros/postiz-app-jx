@@ -57,7 +57,7 @@ export const Button: FC<
         <div className="absolute inset-0 flex items-center justify-center">
           <ReactLoading
             type="spin"
-            color="#fff"
+            color={secondary ? 'currentColor' : '#fff'}
             width={height! / 2}
             height={height! / 2}
           />

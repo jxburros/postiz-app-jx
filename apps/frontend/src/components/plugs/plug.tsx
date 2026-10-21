@@ -145,7 +145,7 @@ export const PlugPop: FC<{
                   <Input
                     name={field.name}
                     label={field.description}
-                    className="w-full mt-[8px] p-[8px] border border-tableBorder rounded-md text-black"
+                    className="w-full mt-[8px] p-[8px] border border-tableBorder rounded-md text-textColor"
                     placeholder={field.placeholder}
                     type={field.type}
                   />

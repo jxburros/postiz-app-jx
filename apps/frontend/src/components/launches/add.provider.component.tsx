@@ -453,7 +453,7 @@ export const AddProviderComponent: FC<{
             },
             children: (
               <div
-                {...(isMobile ? { className: 'h-full bg-black p-[20px]' } : {})}
+                {...(isMobile ? { className: 'h-full bg-newBgColorInner p-[20px]' } : {})}
               >
                 <Web3Providers
                   onComplete={(code, newState) => {
@@ -661,7 +661,7 @@ export const AddProviderComponent: FC<{
             },
             children: (
               <div
-                {...(isMobile ? { className: 'h-full bg-black p-[20px]' } : {})}
+                {...(isMobile ? { className: 'h-full bg-newBgColorInner p-[20px]' } : {})}
               >
                 <CustomVariables
                   identifier={identifier}

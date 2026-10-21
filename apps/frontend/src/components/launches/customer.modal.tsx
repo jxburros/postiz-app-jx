@@ -50,7 +50,7 @@ export const CustomerModal: FC<{
   return (
     <div className="relative w-full">
       <div className="mb-[80px] flex flex-col gap-[6px]">
-        <label htmlFor="customer-name" className="text-[14px] text-white">
+        <label htmlFor="customer-name" className="text-[14px] text-textColor">
           {t('select_customer_label', 'Select Customer')}
         </label>
         <input
