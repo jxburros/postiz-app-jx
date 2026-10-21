@@ -292,6 +292,7 @@ export class PostsRepository {
           state: true,
           intervalInDays: true,
           group: true,
+          settings: true,
           creationMethod: true,
           tags: {
             where: {

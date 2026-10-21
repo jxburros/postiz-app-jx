@@ -19,6 +19,8 @@ export interface Internal {
   integrationValue: Values[];
 }
 
+export type PostKind = 'post' | 'story';
+
 export interface SelectedIntegrations {
   settings: any;
   integration: Integrations;
@@ -41,6 +43,8 @@ interface StoreState {
   comments: boolean | 'no-media';
   locked: boolean;
   hide: boolean;
+  postKind: PostKind;
+  setPostKind: (postKind: PostKind) => void;
   setLocked: (locked: boolean) => void;
   integrations: Integrations[];
   selectedIntegrations: SelectedIntegrations[];
@@ -150,6 +154,7 @@ const initialState = {
   current: 'global',
   locked: false,
   hide: false,
+  postKind: 'post' as PostKind,
   integrations: [] as Integrations[],
   selectedIntegrations: [] as SelectedIntegrations[],
   global: [] as Values[],
@@ -525,6 +530,37 @@ export const useLaunchStore = create<StoreState>()((set) => ({
     set((state) => ({
       locked: locked,
     })),
+  // Stories can only go to channels that support them, so switching to story
+  // mode drops the selected channels that don't.
+  setPostKind: (postKind: PostKind) =>
+    set((state) => {
+      if (postKind === 'post') {
+        return { postKind };
+      }
+
+      const selectedList = state.selectedIntegrations.filter(
+        (p) => p.integration.stories
+      );
+
+      if (selectedList.length === state.selectedIntegrations.length) {
+        return { postKind };
+      }
+
+      return {
+        postKind,
+        loaded: false,
+        selectedIntegrations: selectedList,
+        ...(!selectedList.some((p) => p.integration.id === state.current)
+          ? { current: 'global' }
+          : {}),
+        ...(selectedList.length === 0
+          ? {
+              current: 'global',
+              editor: 'normal',
+            }
+          : {}),
+      };
+    }),
   setHide: (hide: boolean) =>
     set((state) => ({
       hide: hide,
@@ -549,11 +585,15 @@ export const useLaunchStore = create<StoreState>()((set) => ({
     params: { selectedIntegrations: Integrations; settings: any }[]
   ) =>
     set((state) => ({
-      selectedIntegrations: params.map((p) => ({
-        integration: p.selectedIntegrations,
-        settings: p.settings,
-        ref: createRef(),
-      })),
+      selectedIntegrations: params
+        .filter(
+          (p) => state.postKind !== 'story' || p.selectedIntegrations.stories
+        )
+        .map((p) => ({
+          integration: p.selectedIntegrations,
+          settings: p.settings,
+          ref: createRef(),
+        })),
     })),
   setGlobalValue: (value: Values[]) =>
     set((state) => ({

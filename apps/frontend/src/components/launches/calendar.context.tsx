@@ -27,6 +27,25 @@ extend(isoWeek);
 extend(weekOfYear);
 
 export type ListStateFilter = 'all' | 'scheduled' | 'draft' | 'published';
+export type PostKindFilter = 'all' | 'posts' | 'stories';
+
+// A post is a story when its settings say so (settings.post_type === 'story'),
+// the calendar receives the settings as a JSON string.
+export const isStoryPost = (post: { settings?: unknown }) => {
+  if (!post?.settings) {
+    return false;
+  }
+
+  if (typeof post.settings === 'object') {
+    return (post.settings as { post_type?: string }).post_type === 'story';
+  }
+
+  try {
+    return JSON.parse(post.settings as string)?.post_type === 'story';
+  } catch (e) {
+    return false;
+  }
+};
 
 export const CalendarContext = createContext({
   startDate: newDayjs().startOf('isoWeek').format('YYYY-MM-DD'),
@@ -84,6 +103,10 @@ export const CalendarContext = createContext({
   setListState: (state: ListStateFilter) => {
     /** empty **/
   },
+  kind: 'all' as PostKindFilter,
+  setKind: (kind: PostKindFilter) => {
+    /** empty **/
+  },
 });
 
 export interface Integrations {
@@ -93,6 +116,7 @@ export interface Integrations {
   inBetweenSteps: boolean;
   editor: 'none' | 'normal' | 'markdown' | 'html';
   stripLinks?: boolean;
+  stories?: boolean;
   display: string;
   identifier: string;
   type: string;
@@ -160,6 +184,11 @@ export const CalendarWeekProvider: FC<{
   const initStartDate = searchParams.get('startDate');
   const initEndDate = searchParams.get('endDate');
   const initCustomer = searchParams.get('customer');
+  const initKind = searchParams.get('kind');
+
+  const [kind, setKindRaw] = useState<PostKindFilter>(
+    initKind === 'posts' || initKind === 'stories' ? initKind : 'all'
+  );
 
   const initialRange =
     initStartDate && initEndDate
@@ -267,6 +296,28 @@ export const CalendarWeekProvider: FC<{
     refreshWhenOffline: false,
   });
 
+  const updateUrl = useCallback(
+    (
+      newFilters: {
+        startDate: string;
+        endDate: string;
+        display: string;
+        customer: string | null;
+      },
+      newKind: PostKindFilter
+    ) => {
+      const path = [
+        `startDate=${newFilters.startDate}`,
+        `endDate=${newFilters.endDate}`,
+        `display=${newFilters.display}`,
+        newFilters.customer ? `customer=${newFilters.customer}` : ``,
+        newKind !== 'all' ? `kind=${newKind}` : ``,
+      ].filter((f) => f);
+      window.history.replaceState(null, '', `/launches?${path.join('&')}`);
+    },
+    []
+  );
+
   const setFiltersWrapper = useCallback(
     (newFilters: {
       startDate: string;
@@ -283,22 +334,41 @@ export const CalendarWeekProvider: FC<{
         setListPage(0);
       }
 
-      const path = [
-        `startDate=${newFilters.startDate}`,
-        `endDate=${newFilters.endDate}`,
-        `display=${newFilters.display}`,
-        newFilters.customer ? `customer=${newFilters.customer}` : ``,
-      ].filter((f) => f);
-      window.history.replaceState(null, '', `/launches?${path.join('&')}`);
+      updateUrl(newFilters, kind);
     },
-    []
+    [kind, updateUrl]
+  );
+
+  const setKind = useCallback(
+    (newKind: PostKindFilter) => {
+      setKindRaw(newKind);
+      updateUrl(filters, newKind);
+    },
+    [filters, updateUrl]
+  );
+
+  // Client-side Posts / Stories filter over what was fetched
+  const filterKind = useCallback(
+    (list: any[]) => {
+      if (kind === 'all') {
+        return list;
+      }
+
+      return list.filter((post) =>
+        kind === 'stories' ? isStoryPost(post) : !isStoryPost(post)
+      );
+    },
+    [kind]
   );
 
   const posts = useMemo(() => calendarData?.posts || [], [calendarData?.posts]);
   const comments = useMemo(() => calendarData?.comments || [], [calendarData?.comments]);
 
   // List view data
-  const listPosts = useMemo(() => listData?.posts || [], [listData?.posts]);
+  const listPosts = useMemo(
+    () => filterKind(listData?.posts || []),
+    [listData?.posts, filterKind]
+  );
   const listTotal = listData?.total || 0;
   const listTotalPages = Math.ceil(listTotal / 100);
 
@@ -331,6 +401,11 @@ export const CalendarWeekProvider: FC<{
     mutateList();
   }, [mutateCalendar, mutateList]);
 
+  const filteredInternalData = useMemo(
+    () => filterKind(internalData),
+    [internalData, filterKind]
+  );
+
   // Determine loading state based on current view
   const loading = filters.display === 'list' ? listIsLoading : calendarIsLoading;
 
@@ -340,7 +415,7 @@ export const CalendarWeekProvider: FC<{
         trendings,
         reloadCalendarView,
         ...filters,
-        posts: calendarIsLoading ? [] : internalData,
+        posts: calendarIsLoading ? [] : filteredInternalData,
         loading,
         integrations,
         setFilters: setFiltersWrapper,
@@ -355,6 +430,8 @@ export const CalendarWeekProvider: FC<{
         setListPage,
         listState,
         setListState,
+        kind,
+        setKind,
       }}
     >
       {children}

@@ -17,20 +17,9 @@ import { FacebookPreview } from '@gitroom/frontend/components/new-launch/provide
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { useEffect } from 'react';
 
-const postType = [
-  {
-    value: 'post',
-    label: 'Post',
-  },
-  {
-    value: 'story',
-    label: 'Story',
-  },
-];
-
 export const FacebookSettings = () => {
   const t = useT();
-  const { register, watch, setValue } = useSettings();
+  const { register, watch, setValue, getValues } = useSettings();
   const { value } = useIntegration();
   const postCurrentType = watch('post_type');
   const preset = watch('text_format_preset_id');
@@ -39,6 +28,14 @@ export const FacebookSettings = () => {
   const hasMedia = !!value?.some((p) => !!p.image?.length);
   const presetAvailable = postCurrentType !== 'story' && !hasMedia;
   const selectedBg = getPresetBackground(preset);
+
+  // Post / Story is chosen with the composer's Post | Story toggle (it sets
+  // post_type), the form only needs the default.
+  useEffect(() => {
+    if (!getValues('post_type')) {
+      setValue('post_type', 'post');
+    }
+  }, []);
 
   // Clear any selected background when it can no longer apply (story / media),
   // so a stray combination never reaches the provider.
@@ -50,26 +47,8 @@ export const FacebookSettings = () => {
 
   return (
     <>
-      <div className="pt-[20px]">
-        <Select
-          label="Post Type"
-          {...register('post_type', {
-            value: 'post',
-          })}
-        >
-          <option value="">
-            {t('select_post_type', 'Select Post Type...')}
-          </option>
-          {postType.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </Select>
-      </div>
-
       {postCurrentType !== 'story' && (
-        <>
+        <div className="pt-[20px]">
           <Input
             label={'Embedded URL (only for text Post)'}
             {...register('url')}
@@ -78,7 +57,7 @@ export const FacebookSettings = () => {
             label={'Video Title (only for video Post)'}
             {...register('title')}
           />
-        </>
+        </div>
       )}
 
       {presetAvailable && (

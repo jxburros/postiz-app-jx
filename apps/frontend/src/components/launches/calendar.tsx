@@ -12,6 +12,7 @@ import React, {
 import {
   CalendarContext,
   Integrations,
+  isStoryPost,
   useCalendar,
 } from '@gitroom/frontend/components/launches/calendar.context';
 import dayjs from 'dayjs';
@@ -51,6 +52,7 @@ import { MissingReleaseModal } from '@gitroom/frontend/components/launches/missi
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import i18next from 'i18next';
 import { AddEditModal } from '@gitroom/frontend/components/new-launch/add.edit.modal';
+import { StoryBadge } from '@gitroom/frontend/components/new-launch/post.kind.component';
 import { CreationMethodBadge } from '@gitroom/frontend/components/launches/creation.method.badge';
 import { deleteDialog } from '@gitroom/react/helpers/delete.dialog';
 import { useVariables } from '@gitroom/react/helpers/variable.context';
@@ -154,6 +156,7 @@ const usePostActions = (onMutate?: () => void) => {
                   }
                 : {})}
               allIntegrations={integrations.map((p) => ({ ...p }))}
+              postKind={isStoryPost(data) ? 'story' : 'post'}
               reopenModal={editPost(post)}
               mutate={mutate}
               integrations={
@@ -1030,6 +1033,7 @@ const CalendarItem: FC<{
     user?.impersonate &&
     post.creationMethod &&
     post.creationMethod !== 'UNKNOWN';
+  const isStory = useMemo(() => isStoryPost(post), [post]);
   const preview = useCallback(() => {
     window.open(`/p/` + post.id + '?share=true', '_blank');
   }, [post]);
@@ -1167,7 +1171,10 @@ const CalendarItem: FC<{
       >
         <div className={clsx('relative min-w-[20px]')}>
           <img
-            className="w-[20px] h-[20px] rounded-[8px]"
+            className={clsx(
+              'w-[20px] h-[20px] rounded-[8px]',
+              isStory && 'rounded-full ring-2 ring-ai'
+            )}
             src={post.integration.picture! || '/no-picture.jpg'}
           />
           <img
@@ -1176,7 +1183,8 @@ const CalendarItem: FC<{
           />
         </div>
         <div className="w-full flex-1 flex flex-col min-h-[40px]">
-          <div className="text-start">
+          <div className="text-start flex items-center gap-[4px]">
+            {isStory && <StoryBadge />}
             {state === 'DRAFT' ? t('draft', 'Draft') + ': ' : ''}
           </div>
             <div className="w-full relative">

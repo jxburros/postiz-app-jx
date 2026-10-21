@@ -8,10 +8,12 @@ import { useShallow } from 'zustand/react/shallow';
 import { useExistingData } from '@gitroom/frontend/components/launches/helpers/use.existing.data';
 import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
 import ImageWithFallback from '@gitroom/react/helpers/image.with.fallback';
+import { useT } from '@gitroom/react/translation/get.transation.service.client';
 
 export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
   toolTip,
 }) => {
+  const t = useT();
   const exising = useExistingData();
 
   const {
@@ -19,14 +21,20 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
     addOrRemoveSelectedIntegration,
     integrations,
     selectedIntegrations,
+    postKind,
   } = useLaunchStore(
     useShallow((state) => ({
       integrations: state.integrations,
       selectedIntegrations: state.selectedIntegrations,
       addOrRemoveSelectedIntegration: state.addOrRemoveSelectedIntegration,
       locked: state.locked,
+      postKind: state.postKind,
     }))
   );
+
+  // In story mode, channels that can't publish stories stay visible but can't be picked
+  const notSupported = (integration: { stories?: boolean }) =>
+    postKind === 'story' && !integration.stories && !exising.integration;
 
   return (
     <div className={clsx('flex', locked && 'opacity-50 pointer-events-none')}>
@@ -48,16 +56,26 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
                     'data-tooltip-id': 'tooltip',
                     'data-tooltip-content': integration.name,
                   })}
+                  {...(notSupported(integration) && {
+                    'data-tooltip-id': 'tooltip',
+                    'data-tooltip-content': t(
+                      'channel_does_not_support_stories',
+                      "This channel doesn't support stories"
+                    ),
+                  })}
                 >
                   <div
                     onClick={() => {
-                      if (exising.integration) {
+                      if (exising.integration || notSupported(integration)) {
                         return;
                       }
                       addOrRemoveSelectedIntegration(integration, {});
                     }}
                     className={clsx(
-                      'cursor-pointer border-[2px] relative rounded-full flex justify-center items-center bg-fifth filter transition-all duration-500',
+                      'border-[2px] relative rounded-full flex justify-center items-center bg-fifth filter transition-all duration-500',
+                      notSupported(integration)
+                        ? 'cursor-not-allowed opacity-30'
+                        : 'cursor-pointer',
                       selectedIntegrations.findIndex(
                         (p) => p.integration.id === integration.id
                       ) === -1
@@ -98,6 +116,16 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
                   </div>
                 </div>
               ))}
+            {postKind === 'story' &&
+              !exising.integration &&
+              !integrations.some((p) => p.stories) && (
+                <div className="flex items-center text-[14px] text-textItemBlur">
+                  {t(
+                    'no_channels_support_stories',
+                    'None of your channels support stories yet'
+                  )}
+                </div>
+              )}
           </div>
         </div>
       </div>

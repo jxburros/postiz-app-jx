@@ -1,6 +1,10 @@
 'use client';
 
-import { useCalendar, ListStateFilter } from '@gitroom/frontend/components/launches/calendar.context';
+import {
+  useCalendar,
+  ListStateFilter,
+  PostKindFilter,
+} from '@gitroom/frontend/components/launches/calendar.context';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import { useCallback } from 'react';
@@ -274,6 +278,20 @@ export const Filters = () => {
     { value: 'published', label: t('published', 'Published') },
   ];
 
+  const setKindFilter = useCallback(
+    (next: PostKindFilter) => () => {
+      if (calendar.kind === next) return;
+      calendar.setKind(next);
+    },
+    [calendar]
+  );
+
+  const kindOptions: { value: PostKindFilter; label: string }[] = [
+    { value: 'all', label: t('all', 'All') },
+    { value: 'posts', label: t('filter_posts', 'Posts') },
+    { value: 'stories', label: t('filter_stories', 'Stories') },
+  ];
+
   const previousPage = useCallback(() => {
     if (calendar.listPage > 0) {
       calendar.setListPage(calendar.listPage - 1);
@@ -426,6 +444,21 @@ export const Filters = () => {
           <div className="flex-1" />
         </div>
       )}
+      <div className="flex flex-row p-[4px] border border-newTableBorder rounded-[8px] text-[14px] font-[500]">
+        {kindOptions.map((option) => (
+          <div
+            key={option.value}
+            onClick={setKindFilter(option.value)}
+            className={clsx(
+              'pt-[6px] pb-[5px] cursor-pointer min-w-[64px] px-[10px] text-center rounded-[6px]',
+              calendar.kind === option.value &&
+                'text-textItemFocused bg-boxFocused'
+            )}
+          >
+            {option.label}
+          </div>
+        ))}
+      </div>
       <SelectCustomer
         customer={calendar.customer as string}
         onChange={(customer: string) => setCustomer(customer)}

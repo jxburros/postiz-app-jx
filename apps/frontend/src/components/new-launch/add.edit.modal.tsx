@@ -1,6 +1,9 @@
 'use client';
 import 'reflect-metadata';
-import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
+import {
+  PostKind,
+  useLaunchStore,
+} from '@gitroom/frontend/components/new-launch/store';
 import dayjs from 'dayjs';
 import { FC, useEffect } from 'react';
 import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
@@ -23,6 +26,7 @@ export interface AddEditModalProps {
   mutate: () => void;
   padding?: string;
   customClose?: () => void;
+  postKind?: PostKind;
   onlyValues?: Array<{
     content: string;
     id?: string;
@@ -34,13 +38,15 @@ export interface AddEditModalProps {
 }
 
 export const AddEditModal: FC<AddEditModalProps> = (props) => {
-  const { setAllIntegrations, setDate, setIsCreateSet, setDummy } =
+  const existingData = useExistingData();
+  const { setAllIntegrations, setDate, setIsCreateSet, setDummy, setPostKind } =
     useLaunchStore(
       useShallow((state) => ({
         setAllIntegrations: state.setAllIntegrations,
         setDate: state.setDate,
         setIsCreateSet: state.setIsCreateSet,
         setDummy: state.setDummy,
+        setPostKind: state.setPostKind,
       }))
     );
 
@@ -50,6 +56,14 @@ export const AddEditModal: FC<AddEditModalProps> = (props) => {
     setDate(props.date || newDayjs());
     setAllIntegrations(props.allIntegrations || []);
     setIsCreateSet(!!props.addEditSets);
+    // Open in story mode when asked to, or when the loaded post / set is a story
+    setPostKind(
+      props.postKind ||
+        (existingData?.settings?.post_type === 'story' ||
+        props?.set?.posts?.some((p: any) => p?.settings?.post_type === 'story')
+          ? 'story'
+          : 'post')
+    );
   }, []);
 
   useEffect(() => {

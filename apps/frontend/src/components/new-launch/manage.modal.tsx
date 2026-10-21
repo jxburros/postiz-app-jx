@@ -15,6 +15,10 @@ import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { PicksSocialsComponent } from '@gitroom/frontend/components/new-launch/picks.socials.component';
 import { EditorWrapper } from '@gitroom/frontend/components/new-launch/editor';
 import { SelectCurrent } from '@gitroom/frontend/components/new-launch/select.current';
+import {
+  PostKindToggle,
+  StoryHint,
+} from '@gitroom/frontend/components/new-launch/post.kind.component';
 import { ShowAllProviders } from '@gitroom/frontend/components/new-launch/providers/show.all.providers';
 import { useExistingData } from '@gitroom/frontend/components/launches/helpers/use.existing.data';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
@@ -72,8 +76,10 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
     current,
     activateExitButton,
     setHide,
+    postKind,
   } = useLaunchStore(
     useShallow((state) => ({
+      postKind: state.postKind,
       hide: state.hide,
       setHide: state.setHide,
       date: state.date,
@@ -488,11 +494,15 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
         <div className="flex-1 flex">
           <div className="flex flex-col flex-1 border-e border-newBorder">
             <div className="bg-newBgColor h-[65px] rounded-s-[20px] !rounded-b-[0] flex items-center gap-[12px] px-[20px] text-[20px] font-[600]">
-              {t('create_post_title', 'Create Post')}
+              {postKind === 'story'
+                ? t('create_story_title', 'Create Story')
+                : t('create_post_title', 'Create Post')}
               <CreationMethodBadge
                 creationMethod={existingData?.posts?.[0]?.creationMethod}
                 size="sm"
               />
+              <div className="flex-1" />
+              <PostKindToggle />
             </div>
             <div className="flex-1 flex flex-col gap-[16px]">
               <div
@@ -516,6 +526,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     </div>
                   </div>
                   <div className="flex flex-1 gap-[6px] flex-col">
+                    <StoryHint />
                     <div>{!existingData.integration && <SelectCurrent />}</div>
                     <div className="flex-1 flex">
                       {!hide && <EditorWrapper totalPosts={1} value="" />}
@@ -578,7 +589,11 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
           </div>
           <div className="w-[580px] flex flex-col">
             <div className="bg-newBgColor h-[65px] rounded-e-[20px] !rounded-b-[0] flex items-center px-[20px] text-[20px] font-[600]">
-              <div className="flex-1">{t('post_preview', 'Post Preview')}</div>
+              <div className="flex-1">
+                {postKind === 'story'
+                  ? t('story_preview', 'Story Preview')
+                  : t('post_preview', 'Post Preview')}
+              </div>
               <div className="cursor-pointer">
                 <CloseIcon onClick={askClose} className="text-[#A3A3A3]" />
               </div>

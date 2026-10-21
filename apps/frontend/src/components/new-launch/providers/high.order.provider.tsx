@@ -79,9 +79,11 @@ export const withProvider = function <T extends object>(params: {
       setChars,
       setComments,
       setHide,
+      postKind,
     } = useLaunchStore(
       useShallow((state) => ({
         date: state.date,
+        postKind: state.postKind,
         tab: state.tab,
         global: state.global,
         dummy: state.dummy,
@@ -177,6 +179,24 @@ export const withProvider = function <T extends object>(params: {
       criteriaMode: 'all',
       reValidateMode: 'onChange',
     });
+
+    // The Post / Story mode is chosen once for the whole composer, every
+    // channel that supports stories gets it as settings.post_type, so the
+    // providers don't need their own selector.
+    useEffect(() => {
+      if (!selectedIntegration.integration.stories) {
+        return;
+      }
+
+      const postType = form.getValues('post_type');
+      if (postKind === 'story' && postType !== 'story') {
+        form.setValue('post_type', 'story');
+      }
+
+      if (postKind === 'post' && (!postType || postType === 'story')) {
+        form.setValue('post_type', 'post');
+      }
+    }, [postKind, selectedIntegration.integration.id]);
 
     useImperativeHandle(
       ref,
