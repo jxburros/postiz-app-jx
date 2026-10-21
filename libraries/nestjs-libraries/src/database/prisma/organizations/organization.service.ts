@@ -208,4 +208,19 @@ export class OrganizationService {
       shortlink
     );
   }
+
+  createOrgForUser(userId: string, name: string) {
+    if (process.env.STRIPE_PUBLISHABLE_KEY) {
+      throw new HttpException(
+        'Creating additional profiles is not available when billing is enabled',
+        400
+      );
+    }
+
+    return this._organizationRepository.createOrgForUser(userId, name);
+  }
+
+  updateOrgName(orgId: string, name: string) {
+    return this._organizationRepository.updateOrgName(orgId, name);
+  }
 }

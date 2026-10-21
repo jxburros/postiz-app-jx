@@ -248,6 +248,9 @@ export class OrganizationRepository {
 
   async getOrgsByUserId(userId: string) {
     return this._organization.model.organization.findMany({
+      orderBy: {
+        createdAt: 'asc',
+      },
       where: {
         deletedAt: null,
         users: {
@@ -628,6 +631,40 @@ export class OrganizationRepository {
       },
       data: {
         shortlink,
+      },
+    });
+  }
+
+  createOrgForUser(userId: string, name: string) {
+    return this._organization.model.organization.create({
+      data: {
+        name,
+        apiKey: AuthService.fixedEncryption(makeSecureId(20)),
+        users: {
+          create: {
+            role: Role.SUPERADMIN,
+            userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  updateOrgName(orgId: string, name: string) {
+    return this._organization.model.organization.update({
+      where: {
+        id: orgId,
+      },
+      data: {
+        name,
+      },
+      select: {
+        id: true,
+        name: true,
       },
     });
   }

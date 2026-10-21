@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -24,6 +25,7 @@ import { pricing } from '@gitroom/nestjs-libraries/database/prisma/subscriptions
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from '@gitroom/nestjs-libraries/database/prisma/users/users.service';
 import { UserDetailDto } from '@gitroom/nestjs-libraries/dtos/users/user.details.dto';
+import { OrganizationNameDto } from '@gitroom/nestjs-libraries/dtos/users/organization.name.dto';
 import { EmailNotificationsDto } from '@gitroom/nestjs-libraries/dtos/users/email-notifications.dto';
 import { HttpForbiddenException } from '@gitroom/nestjs-libraries/services/exception.filter';
 import { RealIP } from 'nestjs-real-ip';
@@ -301,6 +303,23 @@ export class UsersController {
     return (await this._orgService.getOrgsByUserId(user.id)).filter(
       (f) => !f.users[0].disabled
     );
+  }
+
+  @Post('/organizations')
+  async createOrg(
+    @GetUserFromRequest() user: User,
+    @Body() body: OrganizationNameDto
+  ) {
+    return this._orgService.createOrgForUser(user.id, body.name);
+  }
+
+  @Put('/organizations/current/name')
+  @CheckPolicies([AuthorizationActions.Create, Sections.ADMIN])
+  async renameCurrentOrg(
+    @GetOrgFromRequest() organization: Organization,
+    @Body() body: OrganizationNameDto
+  ) {
+    return this._orgService.updateOrgName(organization.id, body.name);
   }
 
   @Post('/change-org')
