@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "bumpPolicy": "every-main-change",
+  "apps": {
+    "postiz": {
+      "tagPrefix": "v",
+      "paths": [
+        "apps/backend/**",
+        "apps/frontend/**",
+        "apps/orchestrator/**",
+        "libraries/**",
+        "Dockerfile.dev",
+        "package.json",
+        "pnpm-lock.yaml"
+      ],
+      "versionFiles": [
+        {
+          "path": "package.json",
+          "format": "json",
+          "key": "version"
+        }
+      ],
+      "notes": ".release/notes/{app}/{version}.md",
+      "assets": [
+        "postiz-{version}-linux-amd64.tar",
+        "postiz-{version}-linux-arm64.tar"
+      ],
+      "security": "standard",
+      "checksumFile": "SHA256SUMS.txt",
+      "legacyLatest": true
+    },
+    "postiz-extension": {
+      "tagPrefix": "extension-v",
+      "paths": [
+        "apps/extension/**",
+        "libraries/**",
+        "package.json",
+        "pnpm-lock.yaml"
+      ],
+      "versionFiles": [
+        {
+          "path": "apps/extension/manifest.json",
+          "format": "json",
+          "key": "version"
+        }
+      ],
+      "notes": ".release/notes/{app}/{version}.md",
+      "assets": [
+        "Postiz-extension-{version}.zip"
+      ],
+      "security": "standard",
+      "checksumFile": "SHA256SUMS.txt"
+    }
+  }
+}

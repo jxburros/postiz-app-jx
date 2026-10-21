@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "apps": {
+    "postiz": {
+      "title": "Postiz",
+      "version": "1.0.0"
+    },
+    "postiz-extension": {
+      "title": "Postiz extension",
+      "version": "2.0.0"
+    }
+  }
+}
