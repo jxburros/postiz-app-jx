@@ -164,8 +164,9 @@ No developer app and no `.env` settings. Postiz talks to the WordPress REST API 
 
 Postiz keeps normal posts and Stories apart so one never turns into the other by accident.
 
-- A **Post** goes to the feed of the channel. That is the default everywhere.
-- A **Story** is a short-lived vertical photo or video. Facebook, Instagram (both kinds) and Snapchat support Stories. Pick **Create Story** when creating the content; other channels in the same draft keep posting normally.
+- A **Post** goes to the feed of the channel. **Create Post** on the calendar is the default everywhere.
+- A **Story** is a short-lived vertical photo or video. Facebook, Instagram (both kinds) and Snapchat support Stories. Click **Create Story** (right under Create Post), or flip the **Post | Story** toggle at the top of the editor. In Story mode only channels that support Stories can be picked; the others are greyed out with a tooltip.
+- Editing or duplicating a Story opens it in Story mode again. On the calendar, Stories carry a small **Story** badge, and the **All / Posts / Stories** filter next to the customer selector shows just one kind.
 - Stories need at least one media file (Snapchat ignores the post text for Stories). Use vertical media (9:16, 1080x1920 is ideal).
 - On **Snapchat** a normal post is published as a **Spotlight** (6 to 60 seconds, description up to 160 characters, reviewed by Snapchat). **Create Story** publishes a Story instead, and you can choose how long it stays visible (1, 2 or 3 days, or 1 week).
 - Stories on Instagram and Facebook require the account requirements from the [Meta section](#facebook-and-instagram-meta): a Business/Creator Instagram account linked to a Facebook Page, or a Facebook Page you manage.
@@ -234,6 +235,8 @@ docker compose logs temporal      # Temporal server
 **A platform button is missing or does nothing.** The keys in `.env` are empty or wrong. Check them, run `docker compose up -d` (a plain restart does not re-read `.env`), and check `docker compose logs postiz`.
 
 **Database password changed and now nothing connects.** Postgres stores its password in its volume the first time it is created, so editing `POSTGRES_PASSWORD` afterwards has no effect there. Change it inside the database instead (`docker compose exec postiz-postgres psql -U postiz-user -d postiz-db-local -c "ALTER USER \"postiz-user\" PASSWORD 'new-password';"`) and then update `.env`, or restore the old value. Changing `REDIS_PASSWORD` is always safe.
+
+**Build fails with "Failed to fetch ... from Google Fonts" or npm certificate errors.** The build downloads packages from the npm registry and the app font from Google Fonts. Make sure the machine can reach `registry.npmjs.org`, `fonts.googleapis.com` and `fonts.gstatic.com`. Behind a company proxy that inspects TLS, the proxy's certificate must be trusted inside the build too.
 
 **Build runs out of memory.** The build needs about 4 GB of RAM. Close other programs, add swap, or build on a bigger machine.
 
