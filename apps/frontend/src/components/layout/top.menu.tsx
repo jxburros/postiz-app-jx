@@ -15,6 +15,8 @@ interface MenuItemInterface {
   role?: string[];
   hide?: boolean;
   requireBilling?: boolean;
+  group?: 'create' | 'automate';
+  hint?: string;
   onClick?: () => void;
 }
 
@@ -53,24 +55,8 @@ export const useMenuItem = () => {
         </svg>
       ),
       path: '/launches',
-    },
-    {
-      name: 'Agent',
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="23"
-          height="23"
-          viewBox="0 0 32 32"
-          fill="none"
-        >
-          <path
-            d="M21.1963 9.07375C20.2913 6.95494 18.6824 5.21364 16.6416 4.14422C14.6009 3.0748 12.2534 2.74287 9.99616 3.20455C7.73891 3.66623 5.71031 4.8932 4.25334 6.67802C2.79637 8.46284 2.0004 10.696 2 13V21.25C2 21.7141 2.18437 22.1592 2.51256 22.4874C2.84075 22.8156 3.28587 23 3.75 23H10.8337C11.6141 24.7821 12.8964 26.2984 14.5241 27.3638C16.1519 28.4293 18.0546 28.9978 20 29H28.25C28.7141 29 29.1592 28.8156 29.4874 28.4874C29.8156 28.1592 30 27.7141 30 27.25V19C29.9995 16.5553 29.1036 14.1955 27.4814 12.3666C25.8593 10.5376 23.6234 9.36619 21.1963 9.07375ZM4 13C4 11.4177 4.46919 9.87103 5.34824 8.55544C6.22729 7.23984 7.47672 6.21446 8.93853 5.60896C10.4003 5.00346 12.0089 4.84504 13.5607 5.15372C15.1126 5.4624 16.538 6.22432 17.6569 7.34314C18.7757 8.46197 19.5376 9.88743 19.8463 11.4393C20.155 12.9911 19.9965 14.5997 19.391 16.0615C18.7855 17.5233 17.7602 18.7727 16.4446 19.6518C15.129 20.5308 13.5823 21 12 21H4V13ZM28 27H20C18.5854 26.9984 17.1964 26.6225 15.974 25.9106C14.7516 25.1986 13.7394 24.1759 13.04 22.9463C14.4096 22.8041 15.7351 22.3804 16.9333 21.7017C18.1314 21.023 19.1763 20.104 20.0024 19.0023C20.8284 17.9006 21.4179 16.6401 21.7337 15.2998C22.0495 13.9595 22.0848 12.5684 21.8375 11.2137C23.5916 11.6277 25.1545 12.6218 26.273 14.035C27.3915 15.4482 28 17.1977 28 19V27Z"
-            fill="currentColor"
-          />
-        </svg>
-      ),
-      path: '/agents',
+      group: 'create',
+      hint: t('menu_hint_calendar', 'Plan and schedule your posts'),
     },
     {
       name: t('analytics', 'Analytics'),
@@ -92,6 +78,8 @@ export const useMenuItem = () => {
         </svg>
       ),
       path: '/analytics',
+      group: 'create',
+      hint: t('menu_hint_analytics', 'See how your channels perform'),
     },
     {
       name: t('media', 'Media'),
@@ -113,6 +101,28 @@ export const useMenuItem = () => {
         </svg>
       ),
       path: '/media',
+      group: 'create',
+      hint: t('menu_hint_media', 'Your images and videos library'),
+    },
+    {
+      name: 'Agent',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="23"
+          height="23"
+          viewBox="0 0 32 32"
+          fill="none"
+        >
+          <path
+            d="M21.1963 9.07375C20.2913 6.95494 18.6824 5.21364 16.6416 4.14422C14.6009 3.0748 12.2534 2.74287 9.99616 3.20455C7.73891 3.66623 5.71031 4.8932 4.25334 6.67802C2.79637 8.46284 2.0004 10.696 2 13V21.25C2 21.7141 2.18437 22.1592 2.51256 22.4874C2.84075 22.8156 3.28587 23 3.75 23H10.8337C11.6141 24.7821 12.8964 26.2984 14.5241 27.3638C16.1519 28.4293 18.0546 28.9978 20 29H28.25C28.7141 29 29.1592 28.8156 29.4874 28.4874C29.8156 28.1592 30 27.7141 30 27.25V19C29.9995 16.5553 29.1036 14.1955 27.4814 12.3666C25.8593 10.5376 23.6234 9.36619 21.1963 9.07375ZM4 13C4 11.4177 4.46919 9.87103 5.34824 8.55544C6.22729 7.23984 7.47672 6.21446 8.93853 5.60896C10.4003 5.00346 12.0089 4.84504 13.5607 5.15372C15.1126 5.4624 16.538 6.22432 17.6569 7.34314C18.7757 8.46197 19.5376 9.88743 19.8463 11.4393C20.155 12.9911 19.9965 14.5997 19.391 16.0615C18.7855 17.5233 17.7602 18.7727 16.4446 19.6518C15.129 20.5308 13.5823 21 12 21H4V13ZM28 27H20C18.5854 26.9984 17.1964 26.6225 15.974 25.9106C14.7516 25.1986 13.7394 24.1759 13.04 22.9463C14.4096 22.8041 15.7351 22.3804 16.9333 21.7017C18.1314 21.023 19.1763 20.104 20.0024 19.0023C20.8284 17.9006 21.4179 16.6401 21.7337 15.2998C22.0495 13.9595 22.0848 12.5684 21.8375 11.2137C23.5916 11.6277 25.1545 12.6218 26.273 14.035C27.3915 15.4482 28 17.1977 28 19V27Z"
+            fill="currentColor"
+          />
+        </svg>
+      ),
+      path: '/agents',
+      group: 'automate',
+      hint: t('menu_hint_agent', 'Let the AI agent create posts for you'),
     },
     {
       name: t('plugs', 'Plugs'),
@@ -134,6 +144,8 @@ export const useMenuItem = () => {
         </svg>
       ),
       path: '/plugs',
+      group: 'automate',
+      hint: t('menu_hint_plugs', 'Automatic actions, like auto-repost when a post takes off'),
     },
     {
       name: t('integrations', 'Integrations'),
@@ -155,6 +167,8 @@ export const useMenuItem = () => {
         </svg>
       ),
       path: '/third-party',
+      group: 'automate',
+      hint: t('menu_hint_integrations', 'Connect third-party tools'),
     },
   ] satisfies MenuItemInterface[] as MenuItemInterface[];
 
@@ -311,71 +325,103 @@ export const useMenuItem = () => {
   };
 };
 
-export const TopMenu: FC = () => {
+const MenuGroupLabel: FC<{ label: string; collapsed?: boolean }> = ({
+  label,
+  collapsed,
+}) => {
+  if (collapsed) {
+    return <div className="mx-auto w-[24px] h-[2px] rounded-full bg-newBorder" />;
+  }
+  return (
+    <div className="px-[12px] pb-[2px] text-[11px] font-[700] uppercase tracking-[0.08em] text-textItemBlur mobile:hidden">
+      {label}
+    </div>
+  );
+};
+
+export const TopMenu: FC<{ collapsed?: boolean }> = ({ collapsed }) => {
   const user = useUser();
+  const t = useT();
   const { firstMenu, secondMenu } = useMenuItem();
   const { isGeneral, billingEnabled } = useVariables();
+
+  const isVisible = useCallback(
+    (f: MenuItemInterface) => {
+      if (f.hide) {
+        return false;
+      }
+      if (f.requireBilling && !billingEnabled) {
+        return false;
+      }
+      if (f.name === 'Billing' && user?.isLifetime) {
+        return false;
+      }
+      if (f.role) {
+        return !!user?.role && f.role.includes(user.role);
+      }
+      return true;
+    },
+    [billingEnabled, user]
+  );
+
+  const showFirstMenu =
+    user?.orgId &&
+    // @ts-expect-error tier is typed as the pricing object, keep the existing check untouched
+    (user.tier !== 'FREE' || !isGeneral || !billingEnabled);
+
+  const visibleFirstMenu = firstMenu.filter(isVisible);
+  const groups = [
+    {
+      key: 'create',
+      label: t('menu_group_create', 'Create'),
+      items: visibleFirstMenu.filter((f) => f.group !== 'automate'),
+    },
+    {
+      key: 'automate',
+      label: t('menu_group_automate', 'Automate'),
+      items: visibleFirstMenu.filter((f) => f.group === 'automate'),
+    },
+  ].filter((g) => g.items.length);
+
   return (
     <>
-      <div className="flex flex-1 flex-col minCustom:gap-[16px] blurMe">
-        {
-          // @ts-ignore
-          user?.orgId &&
-            // @ts-ignore
-            (user.tier !== 'FREE' || !isGeneral || !billingEnabled) &&
-            firstMenu
-              .filter((f) => {
-                if (f.hide) {
-                  return false;
-                }
-                if (f.requireBilling && !billingEnabled) {
-                  return false;
-                }
-                if (f.name === 'Billing' && user?.isLifetime) {
-                  return false;
-                }
-                if (f.role) {
-                  return f.role.includes(user?.role!);
-                }
-                return true;
-              })
-              .map((item, index) => (
+      <nav
+        aria-label={t('main_navigation', 'Main navigation')}
+        className="flex flex-1 flex-col minCustom:gap-[20px] custom:gap-[12px] blurMe"
+      >
+        {showFirstMenu &&
+          groups.map((group) => (
+            <div
+              key={group.key}
+              className="flex flex-col minCustom:gap-[4px] custom:gap-[2px]"
+            >
+              <MenuGroupLabel label={group.label} collapsed={collapsed} />
+              {group.items.map((item) => (
                 <MenuItem
                   path={item.path}
                   label={item.name}
                   icon={item.icon}
+                  hint={item.hint}
+                  collapsed={collapsed}
                   key={item.name}
                   onClick={item.onClick}
                 />
-              ))
-        }
-      </div>
-      <div className="flex flex-col minCustom:gap-[20px] custom:gap-[8px] blurMe">
-        {secondMenu
-          .filter((f) => {
-            if (f.hide) {
-              return false;
-            }
-            if (f.requireBilling && !billingEnabled) {
-              return false;
-            }
-            if (f.name === 'Billing' && user?.isLifetime) {
-              return false;
-            }
-            if (f.role) {
-              return f.role.includes(user?.role!);
-            }
-            return true;
-          })
-          .map((item, index) => (
-            <MenuItem
-              path={item.path}
-              label={item.name}
-              icon={item.icon}
-              key={item.name}
-              onClick={item.onClick}
-            />
+              ))}
+            </div>
           ))}
+      </nav>
+      <div className="flex flex-col minCustom:gap-[4px] custom:gap-[2px] pt-[12px] border-t border-newBorder blurMe">
+        {secondMenu.filter(isVisible).map((item) => (
+          <MenuItem
+            path={item.path}
+            label={item.name}
+            icon={item.icon}
+            hint={item.hint}
+            collapsed={collapsed}
+            key={item.name}
+            onClick={item.onClick}
+          />
+        ))}
       </div>
     </>
   );

@@ -113,6 +113,16 @@ module.exports = {
         youtubeButton: 'var(--youtube-button)',
         youtubeBgAction: 'var(--youtube-action-color)',
         youtubeSvg: 'var(--youtube-svg-border)',
+        accentPink: 'var(--new-accent-pink)',
+        accentPinkSoft: 'var(--new-accent-pink-soft)',
+        accentPinkText: 'var(--new-accent-pink-text)',
+        accentYellow: 'var(--new-accent-yellow)',
+        accentYellowSoft: 'var(--new-accent-yellow-soft)',
+        accentYellowText: 'var(--new-accent-yellow-text)',
+        accentAqua: 'var(--new-accent-aqua)',
+        accentAquaSoft: 'var(--new-accent-aqua-soft)',
+        accentAquaText: 'var(--new-accent-aqua-text)',
+        focusRing: 'var(--new-focus-ring)',
       },
       gridTemplateColumns: {
         13: 'repeat(13, minmax(0, 1fr));',
@@ -120,6 +130,7 @@ module.exports = {
       backgroundImage: {
         loginBox: 'url(/auth/login-box.png)',
         loginBg: 'url(/auth/bg-login.png)',
+        primaryGradient: 'var(--new-primary-gradient)',
       },
       fontFamily: {
         sans: ['Helvetica Neue'],
@@ -143,6 +154,8 @@ module.exports = {
         greenToast: '0px 0px 50px rgba(60, 124, 90, 0.3)',
         menu: 'var(--menu-shadow)',
         previewShadow: 'var(--preview-box-shadow)',
+        card: 'var(--new-card-shadow)',
+        pill: 'var(--new-pill-shadow)',
       },
       dropShadow: {
         glow: [

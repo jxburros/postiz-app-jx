@@ -20,6 +20,12 @@ body * {
   outline: none !important;
 }
 
+/* Keyboard users still get a bright, friendly focus ring on interactive elements */
+body :is(a, button, [role='button'], [role='tab'], [role='menuitem'], summary):focus-visible {
+  outline: 2px solid var(--new-focus-ring) !important;
+  outline-offset: 2px;
+}
+
 .box {
   position: relative;
 }
@@ -423,7 +429,7 @@ div div .set-font-family {
 
 .loading-shimmer {
   position: relative;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgb(var(--new-textColor) / 0.5);
 }
 
 .loading-shimmer:before {
@@ -662,7 +668,7 @@ html[dir='rtl'] [dir='ltr'] {
 }
 
 .mantine-Overlay-root {
-  background: rgba(65, 64, 66, 0.3) !important;
+  background: var(--popup-color) !important;
 }
 
 .dropdown-menu {
@@ -761,12 +767,12 @@ html[dir='rtl'] [dir='ltr'] {
 }
 
 .blackGradBottomBg {
-  background: linear-gradient(180deg, #0e0e0e 0%, rgba(14, 14, 14, 0) 100%);
+  background: linear-gradient(180deg, var(--new-bgColor) 0%, transparent 100%);
   rotate: 180deg;
 }
 
 .blackGradTopBg {
-  background: linear-gradient(180deg, #0e0e0e 0%, rgba(14, 14, 14, 0) 100%);
+  background: linear-gradient(180deg, var(--new-bgColor) 0%, transparent 100%);
 }
 
 .billing-form input {
@@ -775,7 +781,7 @@ html[dir='rtl'] [dir='ltr'] {
 
 .menu-shadow {
   border-radius: 12px;
-  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: var(--menu-shadow);
 }
 
 .post-now {

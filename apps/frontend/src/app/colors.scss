@@ -1,35 +1,51 @@
 :root {
   .dark {
     --new-back-drop: #000;
-    --new-settings: #242323;
-    --new-border: #252525;
-    --new-bgColor: #0e0e0e;
-    --new-bgColorInner: #1a1919;
-    --new-sep: #454444;
-    --new-bgLineColor: #212121;
-    --new-textItemFocused: #1a1919;
-    --new-textItemBlur: #999999;
-    --new-boxFocused: #fff;
+    --new-settings: #26222f;
+    --new-border: #2a2636;
+    --new-bgColor: #100e17;
+    --new-bgColorInner: #1a1724;
+    --new-sep: #4a4559;
+    --new-bgLineColor: #24202f;
+    --new-textItemFocused: #2a0b6b;
+    --new-textItemBlur: #a19cb3;
+    --new-boxFocused: #e9ddff;
     --new-textColor: 255 255 255;
-    --new-blockSeparator: #272626;
-    --new-btn-simple: #313030;
+    --new-blockSeparator: #2a2635;
+    --new-btn-simple: #2f2a3b;
     --new-btn-text: #ffffff;
-    --new-btn-primary: #612bd3;
-    --new-ai-btn: #d82d7e;
-    --new-box-hover: #201f1f;
-    --new-table-border: #2b2b2b;
-    --new-table-header: #1e1d1d;
-    --new-table-text: #9c9c9c;
+    --new-btn-primary: #7c3aed;
+    --new-ai-btn: #db2777;
+    --new-box-hover: #231f2e;
+    --new-table-border: #2d2939;
+    --new-table-header: #1f1c29;
+    --new-table-text: #a19cb3;
     --new-table-text-focused: #fc69ff;
     --new-small-strips: #191818;
-    --new-big-strips: #161515;
-    --new-col-color: #2c2b2b;
-    --new-menu-dots: #696868;
+    --new-big-strips: #17141f;
+    --new-col-color: #2d2939;
+    --new-menu-dots: #6f6a80;
     --new-menu-hover: #fff;
-    --menu-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.5);
+    --menu-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.55),
+      0 2px 8px 0 rgba(0, 0, 0, 0.35);
     --popup-color: rgba(65, 64, 66, 0.3);
     --border-preview: transparent;
     --preview-box-shadow: none;
+    /* Playful accent family (shared with light mode, tuned for dark surfaces) */
+    --new-accent-pink: #ff5c9a;
+    --new-accent-pink-soft: rgba(255, 92, 154, 0.16);
+    --new-accent-pink-text: #ff8fbb;
+    --new-accent-yellow: #ffcf4d;
+    --new-accent-yellow-soft: rgba(255, 207, 77, 0.16);
+    --new-accent-yellow-text: #ffd66e;
+    --new-accent-aqua: #2ee6d6;
+    --new-accent-aqua-soft: rgba(46, 230, 214, 0.14);
+    --new-accent-aqua-text: #6ff0e3;
+    --new-primary-gradient: linear-gradient(135deg, #7c3aed 0%, #d0277f 100%);
+    --new-focus-ring: #a78bfa;
+    --new-card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3),
+      0 10px 30px -14px rgba(0, 0, 0, 0.6);
+    --new-pill-shadow: 0 8px 20px -8px rgba(160, 80, 255, 0.65);
     --linkedin-border: #2e3438;
     --linkedin-bg: #1b1f23;
     --linkedin-text: #c6c7c8;
@@ -45,42 +61,54 @@
   }
   .light {
     --new-back-drop: #2d1b57;
-    --new-settings: #eceef1;
-    --new-sep: #d5d9dd;
-    --new-border: #eaecee;
-    --new-bgColor: #f0f2f4;
+    --new-settings: #f3f0f9;
+    --new-sep: #ddd6ea;
+    --new-border: #ebe6f3;
+    --new-bgColor: #faf8f5;
     --new-bgColorInner: #ffffff;
-    --new-bgLineColor: #e7e9eb;
-    --new-textItemFocused: #3900b2;
-    --new-textItemBlur: #777b7f;
-    --new-boxFocused: #ebe8ff;
-    --new-textColor: 14 14 14;
-    --new-blockSeparator: #f2f2f4;
-    --new-btn-simple: #eceef1;
-    --new-btn-text: #0e0e0e;
-    --new-btn-primary: #612bd3;
-    --new-ai-btn: #d82d7e;
-    --new-box-hover: #f4f6f8;
-    --new-table-border: #e7e9eb;
-    --new-table-header: #f5f7f9;
-    --new-table-text: #777b7f;
-    --new-table-text-focused: #fc69ff;
+    --new-bgLineColor: #efebf4;
+    --new-textItemFocused: #5b1fd6;
+    --new-textItemBlur: #6a6580;
+    --new-boxFocused: #efe8ff;
+    --new-textColor: 27 22 48;
+    --new-blockSeparator: #f2eff7;
+    --new-btn-simple: #f2eef9;
+    --new-btn-text: #1b1630;
+    --new-btn-primary: #7c3aed;
+    --new-ai-btn: #db2777;
+    --new-box-hover: #f7f4fc;
+    --new-table-border: #ece8f3;
+    --new-table-header: #f8f6fb;
+    --new-table-text: #6a6580;
+    --new-table-text-focused: #c026d3;
     --new-small-strips: #191818;
-    --new-big-strips: #f5f7f9;
-    --new-col-color: #eff1f3;
-    --new-menu-dots: #696868;
-    --new-menu-hover: #000;
-    --menu-shadow: -22px 83px 24px 0 rgba(55, 52, 75, 0),
-      -14px 53px 22px 0 rgba(55, 52, 75, 0.01),
-      -8px 30px 19px 0 rgba(55, 52, 75, 0.05),
-      -3px 13px 14px 0 rgba(55, 52, 75, 0.09),
-      -1px 3px 8px 0 rgba(55, 52, 75, 0.1);
-    --popup-color: rgba(55, 37, 97, 0.2);
-    --border-preview: #f1f0f3;
+    --new-big-strips: #f8f6fb;
+    --new-col-color: #f1eef7;
+    --new-menu-dots: #8b86a3;
+    --new-menu-hover: #1b1630;
+    --menu-shadow: 0 16px 40px -12px rgba(76, 47, 160, 0.22),
+      0 2px 8px 0 rgba(76, 47, 160, 0.08);
+    --popup-color: rgba(45, 27, 87, 0.22);
+    --border-preview: #f1eef7;
     --preview-box-shadow: 0 386px 108px 0 rgba(38, 32, 64, 0),
       0 247px 99px 0 rgba(38, 32, 64, 0.01),
       0 139px 83px 0 rgba(38, 32, 64, 0.03),
       0 62px 62px 0 rgba(38, 32, 64, 0.04), 0 15px 34px 0 rgba(38, 32, 64, 0.05);
+    /* Playful accent family: use sparingly for highlights, badges and focus */
+    --new-accent-pink: #ff4d8d;
+    --new-accent-pink-soft: #ffe6f0;
+    --new-accent-pink-text: #b8155a;
+    --new-accent-yellow: #ffc233;
+    --new-accent-yellow-soft: #fff4d1;
+    --new-accent-yellow-text: #855700;
+    --new-accent-aqua: #13c4c4;
+    --new-accent-aqua-soft: #dcf8f6;
+    --new-accent-aqua-text: #0b6f73;
+    --new-primary-gradient: linear-gradient(135deg, #7c3aed 0%, #d0277f 100%);
+    --new-focus-ring: #8b5cf6;
+    --new-card-shadow: 0 1px 2px 0 rgba(27, 22, 48, 0.04),
+      0 10px 30px -14px rgba(76, 47, 160, 0.18);
+    --new-pill-shadow: 0 8px 20px -8px rgba(124, 58, 237, 0.6);
     --linkedin-border: #e9e5df;
     --linkedin-bg: #fff;
     --linkedin-text: #707070;
@@ -98,11 +126,11 @@
 
 :root {
   .dark {
-    --color-primary: #0e0e0e;
+    --color-primary: #100e17;
     --color-secondary: #090b13;
     --color-text: #ffffff;
     --color-third: #080b13;
-    --color-forth: #612ad5;
+    --color-forth: #7c3aed;
     --color-fifth: var(--new-bgLineColor);
     --color-sixth: var(--new-table-header);
     --color-seventh: #7236f1;
@@ -168,11 +196,11 @@
     --color-modalCustom: #000000;
   }
   .light {
-    --color-primary: #f0f2f4;
+    --color-primary: #faf8f5;
     --color-secondary: #fff;
     --color-text: #000;
     --color-third: white;
-    --color-forth: #612ad5;
+    --color-forth: #7c3aed;
     --color-fifth: var(--new-bgLineColor);
     --color-sixth: var(--new-table-header);
     --color-seventh: #7236f1;

@@ -1,25 +1,53 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import useCookie from 'react-use-cookie';
+import { useCallback, useEffect } from 'react';
+import useCookie, { getCookie } from 'react-use-cookie';
 import EventEmitter from 'events';
+import { useT } from '@gitroom/react/translation/get.transation.service.client';
 
 export const modeEmitter = new EventEmitter();
 
+// New visitors start with the bright light theme, dark mode stays one click away.
+export const DEFAULT_MODE = 'light';
+
 const ModeComponent = () => {
-  const [mode, setMode] = useCookie('mode', 'dark');
+  const t = useT();
+  const [mode, setMode] = useCookie('mode', DEFAULT_MODE);
 
   const changeMode = useCallback(() => {
     modeEmitter.emit('mode', mode === 'dark' ? 'light' : 'dark');
     setMode(mode === 'dark' ? 'light' : 'dark');
-  }, [mode]);
+  }, [mode, setMode]);
+
+  useEffect(() => {
+    // Persist the default so every other `mode` cookie reader agrees with the body class
+    if (!getCookie('mode')) {
+      setMode(DEFAULT_MODE);
+      modeEmitter.emit('mode', DEFAULT_MODE);
+    }
+  }, [setMode]);
 
   useEffect(() => {
     document.body.classList.remove('dark', 'light');
     document.body.classList.add(mode);
   }, [mode]);
   return (
-    <div onClick={changeMode} className="select-none cursor-pointer">
+    <button
+      type="button"
+      onClick={changeMode}
+      aria-label={
+        mode === 'dark'
+          ? t('switch_to_light_mode', 'Switch to light mode')
+          : t('switch_to_dark_mode', 'Switch to dark mode')
+      }
+      data-tooltip-id="tooltip"
+      data-tooltip-content={
+        mode === 'dark'
+          ? t('switch_to_light_mode', 'Switch to light mode')
+          : t('switch_to_dark_mode', 'Switch to dark mode')
+      }
+      className="select-none cursor-pointer flex items-center justify-center"
+    >
       {mode === 'dark' ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +81,7 @@ const ModeComponent = () => {
           />
         </svg>
       )}
-    </div>
+    </button>
   );
 };
 export default ModeComponent;
