@@ -104,6 +104,7 @@ export class IntegrationsController {
             internalId: p.internalId,
             disabled: p.disabled,
             editor: findIntegration.editor,
+            stories: !!findIntegration?.stories,
             stripLinks: !!findIntegration?.stripLinks?.(),
             picture: p.picture || '/no-picture.jpg',
             identifier: p.providerIdentifier,

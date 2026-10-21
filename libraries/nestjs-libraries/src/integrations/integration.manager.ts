@@ -135,6 +135,7 @@ export class IntegrationManager {
             identifier: p.identifier,
             toolTip: p.toolTip,
             editor: p.editor,
+            stories: !!p.stories,
             isExternal: !!p.externalUrl,
             isWeb3: !!p.isWeb3,
             isChromeExtension: !!p.isChromeExtension,

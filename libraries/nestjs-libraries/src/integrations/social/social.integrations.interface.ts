@@ -192,6 +192,7 @@ export interface SocialProvider
   isChromeExtension?: boolean;
   extensionCookies?: { name: string; domain: string }[];
   editor: 'none' | 'normal' | 'markdown' | 'html';
+  stories?: boolean; // the provider publishes a story when settings.post_type === 'story'
   customFields?: () => Promise<
     {
       key: string;

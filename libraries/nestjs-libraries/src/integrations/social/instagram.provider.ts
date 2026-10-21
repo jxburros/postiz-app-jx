@@ -44,6 +44,7 @@ export class InstagramProvider
   ];
   override maxConcurrentJob = 400;
   editor = 'normal' as const;
+  stories = true;
   dto = InstagramDto;
   maxLength() {
     return 2200;

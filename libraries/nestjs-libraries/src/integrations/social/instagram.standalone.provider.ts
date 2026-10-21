@@ -39,6 +39,7 @@ export class InstagramStandaloneProvider
   dto = InstagramDto;
 
   editor = 'normal' as const;
+  stories = true;
   maxLength() {
     return 2200;
   }
