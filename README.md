@@ -129,7 +129,17 @@
 
 ## Quick Start
 
-To have the project up and running, please follow the [Quick Start Guide](https://docs.postiz.com/quickstart)
+Self-host this fork (built from source, so it includes the Snapchat provider, Stories, Profiles and the new theme) with Docker:
+
+```bash
+git clone <this repository> postiz-app-jx
+cd postiz-app-jx
+./install.sh
+```
+
+The installer creates your `.env` with fresh secrets, asks for your public URL (default `http://localhost:4007`), then builds and starts everything. See [docs/SETUP.md](docs/SETUP.md) for the full guide: connecting Facebook, Instagram, X, Threads, TikTok, Reddit, Snapchat, Bluesky and WordPress, Posts vs Stories, Profiles, updating and backups.
+
+For the upstream project's own instructions, see the [Quick Start Guide](https://docs.postiz.com/quickstart).
 
 ## Sponsor Postiz
 

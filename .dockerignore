@@ -21,3 +21,10 @@ dist
 .git
 .github
 reports
+
+# Never bake local secrets or build leftovers into the image
+.env
+.env.*
+node-compile-cache
+**/.next
+docs
