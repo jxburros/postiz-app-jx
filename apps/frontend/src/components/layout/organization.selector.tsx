@@ -123,7 +123,8 @@ export const OrganizationSelector: FC<{ asOpenSelect?: boolean }> = ({
     [current?.name]
   );
 
-  if (isLoading || !data) {
+  // The full-page picker (billing screen) is only useful when there is another profile to switch to
+  if (isLoading || !data || (asOpenSelect && data.length < 2)) {
     return null;
   }
 
