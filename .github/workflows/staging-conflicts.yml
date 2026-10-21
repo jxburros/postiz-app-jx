@@ -4,15 +4,14 @@ name: Resolve staging conflicts
 # resolves the conflicts and creates the merge commit. Nothing is commented,
 # nothing is pushed unless the resolution passes every verification below.
 #
-# claude-code-action rejects `push` events, so detection runs on a schedule.
+# claude-code-action rejects `push` events, so detection used to run on a
+# schedule. The schedule is disabled; run this manually via workflow_dispatch.
 #
 # Required secrets:
 #   STAGING_MERGE_KEY         private half of a write-enabled deploy key
 #   CLAUDE_CODE_OAUTH_TOKEN   Claude API key, despite the secret name
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 concurrency:
